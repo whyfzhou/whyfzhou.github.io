@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="./style.css" />
+    <script src="https://cdn.bootcss.com/d3/5.9.7/d3.js"></script>
+    <script>
+      function drawSingleOP(data) {
+        let oldPlot = document.querySelector("#plot");
+        if (oldPlot) {
+          oldPlot.remove();
+        }
+
+        let t = data.t;
+        let ir = data.ir;
+        let vr = data.vr;
+        let im = data.im;
+        let vhb = data.vhb;
+
+        const padding = 30;
+        const width = 400;
+        const height = 300;
+
+        const svg = d3.select("#chart").append("svg").attr("id", "plot").attr("width", width).attr("height", height);
+        const tScale = d3
+          .scaleLinear()
+          .domain([0, Math.max(...t) / 1e-6])
+          .range([padding, width - padding]);
+        const iScale = d3
+          .scaleLinear()
+          .domain([Math.min(...ir), Math.max(...ir)])
+          .range([height - padding, padding]);
+        const vScale = d3
+          .scaleLinear()
+          .domain([Math.min(...vr, ...vhb), Math.max(...vr, ...vhb)])
+          .range([height - padding, padding]);
+        const currentLine = d3
+          .line()
+          .x((d) => tScale(d.x))
+          .y((d) => iScale(d.y))
+          .curve(d3.curveLinear);
+        const voltageLine = d3
+          .line()
+          .x((d) => tScale(d.x))
+          .y((d) => vScale(d.y))
+          .curve(d3.curveLinear);
+
+        let irData = t.map((e, k) => ({ x: e / 1e-6, y: ir[k] }));
+        let imData = t.map((e, k) => ({ x: e / 1e-6, y: im[k] }));
+        let vrData = t.map((e, k) => ({ x: e / 1e-6, y: vr[k] }));
+        let vhbData = t.map((e, k) => ({ x: e / 1e-6, y: vhb[k] }));
+
+        svg
+          .append("path")
+          .classed("data", true)
+          .attr("d", currentLine(irData))
+          .style("fill", "none")
+          .style("stroke", "blue");
+        svg
+          .append("path")
+          .classed("data", true)
+          .attr("d", currentLine(imData))
+          .style("fill", "none")
+          .style("stroke", "red");
+        svg
+          .append("path")
+          .classed("data", true)
+          .attr("d", voltageLine(vrData))
+          .style("fill", "none")
+          .style("stroke", "orange");
+        svg
+          .append("path")
+          .classed("data", true)
+          .attr("d", voltageLine(vhbData))
+          .style("fill", "none")
+          .style("stroke", "darkgreen");
+
+        // svg.call(
+        //   d3.zoom().on("zoom", () => {
+        //     svg.attr(
+        //       "transform",
+        //       `translate(${d3.event.translate}) scale(${d3.event.scale})`
+        //     );
+        //   })
+        // );
+
+        let tAxis = d3.axisBottom(tScale);
+        let iAxis = d3.axisLeft(iScale);
+        let vAxis = d3.axisRight(vScale);
+        svg
+          .append("g")
+          .attr("class", "t-axis")
+          .attr("transform", `translate(0, ${height - padding})`)
+          .call(tAxis);
+        svg
+          .selectAll("g.t-axis g.tick")
+          .append("line")
+          .classed("grid-line", true)
+          .attr("y2", -(height - 2 * padding))
+          .attr("stroke", "#dddddd");
+        svg.append("g").attr("class", "i-axis").attr("transform", `translate(${padding})`).call(iAxis);
+        svg
+          .selectAll("g.i-axis g.tick")
+          .append("line")
+          .classed("grid-line", true)
+          .attr("x2", width - 2 * padding)
+          .attr("stroke", "#dddddd");
+        svg
+          .append("g")
+          .attr("class", "v-axis")
+          .attr("transform", `translate(${width - padding})`)
+          .call(vAxis);
+        svg
+          .selectAll("g.v-axis g.tick")
+          .append("line")
+          .classed("grid-line", true)
+          .attr("x2", width - 2 * padding)
+          .attr("stroke", "#dddddd");
+      }
+      function sample(arcs, nsample) {
+        let tsw = arcs.map((e) => e.dt).reduce((acc, e) => acc + e, 0);
+        let t = [...Array(nsample).keys()].map((e) => (e / nsample) * tsw);
+        let ir = Array(nsample);
+        let vr = Array(nsample);
+        let im = Array(nsample);
+        let vhb = Array(nsample);
+        let ta = 0;
+        let tb = 0;
+        for (let i = 0; i < arcs.length; ++i) {
+          tb = ta + arcs[i].dt;
+          let currentSegment = [...t.keys()].filter((e, k) => ta <= t[k] && t[k] <= tb);
+          let start = currentSegment[0];
+          let count = currentSegment.length;
+          if (Array.isArray(currentSegment) && count) {
+            let i0 = arcs[i].i0;
+            // let v0 = arcs[i].v0;
+            let r = arcs[i].r;
+            let phi = arcs[i].phi;
+            let w = arcs[i].w;
+            let z = arcs[i].z;
+            let vg = arcs[i].vg;
+            let km = arcs[i].km;
+            let hb = arcs[i].hb;
+            ir.splice(
+              start,
+              count,
+              ...t.slice(start, start + count).map((tau) => (r * Math.cos(w * (tau - ta) + phi)) / z)
+            );
+            vr.splice(
+              start,
+              count,
+              ...t.slice(start, start + count).map((tau) => vg + r * Math.sin(w * (tau - ta) + phi))
+            );
+            if (Math.abs(km) > 1e-9) {
+              im.splice(start, count, ...t.slice(start, start + count).map((tau) => i0 + km * (tau - ta)));
+            } else {
+              im.splice(start, count, ...ir.slice(start, start + count));
+            }
+            vhb.splice(start, count, ...Array(count).fill(hb));
+          }
+          ta = tb;
+        }
+        return { t: t, ir: ir, vr: vr, im: im, vhb: vhb };
+      }
+
+      function trapz(x, t) {
+        let integral = x
+          .slice(1)
+          .map((e, k) => ((e + x[k]) * (t[k + 1] - t[k])) / 2)
+          .reduce((acc, e) => acc + e, 0);
+        return integral;
+      }
+
+      function evaluateSampled(arcs, sampled) {
+        let tsw = arcs.map((e) => e.dt).reduce((acc, e) => acc + e, 0);
+        let dutyHighSide = arcs[2].dt / tsw;
+        let dutyDiode = arcs[0].dt / (arcs[0].dt + arcs[1].dt + arcs[3].dt);
+
+        let iDCOut =
+          trapz(
+            sampled.im.map((e, k) => e - sampled.ir[k]),
+            sampled.t
+          ) / tsw;
+
+        let iRMSPri =
+          (trapz(
+            sampled.ir.map((e) => e ** 2),
+            sampled.t
+          ) /
+            tsw) **
+          0.5;
+        let iPPeakPri = Math.max(...sampled.ir);
+        let iNPeakPri = Math.min(...sampled.ir);
+
+        let vMeanRes = trapz(sampled.vr, sampled.t) / tsw;
+        let vACRMSRes =
+          (trapz(
+            sampled.vr.map((e) => (e - vMeanRes) ** 2),
+            sampled.t
+          ) /
+            tsw) **
+          0.5;
+        let vRMSPri =
+          (trapz(
+            sampled.vhb.map((e, k) => (e - sampled.vr[k]) ** 2),
+            sampled.t
+          ) /
+            tsw) **
+          0.5;
+
+        let iRMSOut =
+          (trapz(
+            sampled.im.map((e, k) => (e - sampled.ir[k]) ** 2),
+            sampled.t
+          ) /
+            tsw) **
+          0.5;
+        let iPPeakOut = Math.max(...sampled.im.map((e, k) => e - sampled.ir[k]));
+
+        let psiPri =
+          trapz(
+            sampled.vhb.map((e, k) => Math.abs(e - sampled.vr[k])),
+            sampled.t
+          ) / 4;
+
+        let qLowHigh = trapz(
+          sampled.ir.map((e, k) => (e < 0 && sampled.vhb[k] > 0 ? e : 0)),
+          sampled.t
+        );
+
+        return {
+          fsw: 1 / tsw,
+          dutyHighSide: dutyHighSide,
+          dutyDiode: dutyDiode,
+          iDCOut: iDCOut,
+          iRMSPri: iRMSPri,
+          iPPeakPri: iPPeakPri,
+          iNPeakPri: iNPeakPri,
+          vMeanRes: vMeanRes,
+          vACRMSRes: vACRMSRes,
+          vRMSPri: vRMSPri,
+          iRMSOut: iRMSOut,
+          iPPeakOut: iPPeakOut,
+          psiPri: psiPri,
+          qLowHigh: qLowHigh,
+        };
+      }
+      function ridder(eq, x0, y0, x1, y1, xtol, ytol, maxIter) {
+        let ans = Number.NaN;
+
+        for (let numTries = 0; numTries < maxIter; ++numTries) {
+          let x2 = (x0 + x1) / 2;
+          let y2 = eq(x2);
+          let s = (y2 * y2 - y0 * y1) ** 0.5;
+          if (s === 0) {
+            return ans;
+          }
+
+          let x3 = x2 + ((x2 - x0) * (y0 - y1 >= 0 ? 1 : -1) * y2) / s;
+          if (Math.abs(x3 - ans) <= xtol) {
+            return ans;
+          }
+          let y3 = eq(x3);
+          ans = x3;
+          if (Math.abs(y3) <= ytol) {
+            return ans;
+          }
+
+          if (Math.sign(y2) !== Math.sign(y3)) {
+            [x0, y0, x1, y1] = [x2, y2, x3, y3];
+          } else if (Math.sign(y0) !== Math.sign(y3)) {
+            [x1, y1] = [x3, y3];
+          } else if (Math.sign(y1) !== Math.sign(y3)) {
+            [x0, y0] = [x3, y3];
+          } else {
+            return Number.NaN;
+          }
+        }
+        return Number.NaN;
+      }
+
+      function brent(eq, x0, y0, x1, y1, xtol, ytol, maxIter) {
+        const eps = 7 / 3 - 4 / 3 - 1;
+
+        let lastBisection = true;
+        if (Math.abs(y0) < Math.abs(y1)) {
+          [x0, x1, y0, y1] = [x1, x0, y1, y0];
+        }
+        let x2 = x0;
+        let y2 = y0;
+        let xs = x2;
+        let ys = y2;
+        let xd = x0;
+
+        let numTries;
+        for (numTries = 0; numTries < maxIter; ++numTries) {
+          if (Math.abs(ys) <= ytol) {
+            break;
+          }
+          if (Math.abs(y0 - y2) > 2 * eps && Math.abs(y1 - y2) > 2 * eps) {
+            xs =
+              (x0 * y1 * y2) / (y0 - y1) / (y0 - y2) +
+              (x1 * y0 * y2) / (y1 - y0) / (y1 - y2) +
+              (x2 * y0 * y1) / (y2 - y0) / (y2 - y1);
+          } else {
+            xs = x1 - (y1 * (x1 - x0)) / (y1 - y0);
+          }
+
+          let delta = Math.abs(2 * eps * x0);
+          if (
+            !(((3 * x0 + x1) / 4 < xs && xs < x1) || ((3 * x0 + x1) / 4 > xs && xs > x1)) ||
+            (lastBisection && Math.abs(xs - x1) >= Math.abs(x1 - x2) / 2) ||
+            (!lastBisection && Math.abs(xs - x1) >= Math.abs(x2 - xd) / 2) ||
+            (lastBisection && Math.abs(x1 - x2) < delta) ||
+            (!lastBisection && Math.abs(x2 - xd) < delta)
+          ) {
+            xs = (x0 + x1) / 2;
+            lastBisection = true;
+          } else {
+            lastBisection = false;
+          }
+
+          ys = eq(xs);
+          if (Math.abs(ys) <= ytol) {
+            return xs;
+          }
+
+          [xd, x2, y2] = [x2, x1, y1];
+          if ((y0 < 0 && 0 < ys) || (y0 > 0 && 0 > ys)) {
+            [x1, y1] = [xs, ys];
+          } else {
+            [x0, y0] = [xs, ys];
+          }
+          if (Math.abs(y0) < Math.abs(y1)) {
+            [x0, x1, y0, y1] = [x1, x0, y1, y0];
+          }
+        }
+
+        if (numTries >= maxIter) {
+          return Number.NaN;
+        }
+
+        return Math.abs(y1) < Math.abs(ys) ? x1 : xs;
+      }
+
+      function nsolve(eq, x0, x1, solver) {
+        const maxIter = 20;
+        const xtol = 1e-9;
+        const ytol = 1e-9;
+
+        let y0 = eq(x0);
+        let y1 = eq(x1);
+        if (Math.abs(y0) <= ytol) {
+          return x0;
+        }
+        if (Math.abs(y1) <= ytol) {
+          return x1;
+        }
+        if (Math.sign(y0) === Math.sign(y1)) {
+          return Number.NaN;
+        }
+
+        return solver(eq, x0, y0, x1, y1, xtol, ytol, maxIter);
+      }
+
+      function calc_v0(lr, lm, vout) {
+        let v0 = (vout / lm) * (lr + lm);
+        return v0;
+      }
+
+      function calc_t1(i0, lr, lm, cr, vout) {
+        let w = (lr * cr) ** -0.5;
+        let z = (lr / cr) ** 0.5;
+
+        let v0 = calc_v0(lr, lm, vout);
+        let r = Math.hypot(v0 - vout, i0 * z);
+        let phi = Math.atan2(v0 - vout, i0 * z);
+
+        let tb = ((2 * Math.PI - phi) % (2 * Math.PI)) / w;
+        let ta = tb / 2;
+
+        while ((r * Math.cos(w * ta + phi)) / z > i0 - (vout * ta) / lm && ta > 1e-9) {
+          ta /= 2;
+        }
+        let t1 = ta;
+        if (ta > 1e-9) {
+          t1 = nsolve((t) => i0 - (vout * t) / lm - (r * Math.cos(w * t + phi)) / z, ta, tb, brent);
+        }
+
+        let i1 = (r * Math.cos(w * t1 + phi)) / z;
+        let v1 = r * Math.sin(w * t1 + phi) + vout;
+
+        return [t1, i1, v1];
+      }
+
+      function steady_state_i0(i0, lr, lm, cr, vbus, vout, t12) {
+        // "01": t0 == 0 <= t <= t1: low-side device on, diode on
+        let v0 = calc_v0(lr, lm, vout);
+        let t01, i1, v1;
+        [t01, i1, v1] = calc_t1(i0, lr, lm, cr, vout);
+
+        // when diode is off
+        const w1 = ((lr + lm) * cr) ** -0.5;
+        const z1 = ((lr + lm) / cr) ** 0.5;
+
+        // "12": t1 <= t <= t2: low-side device on, diode off
+        let r12 = Math.hypot(v1, i1 * z1);
+        let phi12 = Math.atan2(v1, i1 * z1);
+        let i2 = (r12 * Math.cos(w1 * t12 + phi12)) / z1;
+        let v2 = r12 * Math.sin(w1 * t12 + phi12);
+
+        // "23": t2 <= t <= t3, high-side device on, diode off
+        let r23 = Math.hypot(v2 - vbus, i2 * z1);
+
+        // "30": t3 <= t <= Tsw, low-side device on, diode off
+        let r30 = Math.hypot(v0, i0 * z1);
+        // find the intersection of two ellipses that are similar
+        let v3 = (r30 ** 2 - r23 ** 2 + vbus ** 2) / (2 * vbus);
+        let i3;
+        if (v3 < r30) {
+          i3 = (r30 ** 2 - v3 ** 2) ** 0.5 / z1;
+        } else {
+          i3 = 0;
+        }
+        let t30 = (Math.atan2(v0, i0 * z1) - Math.atan2(v3, i3 * z1)) / w1;
+
+        // when diode is on
+        const w0 = (lr * cr) ** -0.5;
+        const z0 = (lr / cr) ** 0.5;
+        let r01 = Math.hypot(v0 - vout, i0 * z0);
+        let phi01 = Math.atan2(v0 - vout, i0 * z0);
+
+        let phi23 = Math.atan2(v2 - vbus, i2 * z1);
+        let t23 = (Math.atan2(v3 - vbus, i3 * z1) - phi23) / w1;
+
+        let phi30 = Math.atan2(v3, i3 * z1);
+
+        return [
+          { dt: t01, i0: i0, v0: v0, r: r01, phi: phi01, w: w0, z: z0, vg: vout, km: -vout / lm, hb: 0 },
+          { dt: t12, i0: i1, v0: v1, r: r12, phi: phi12, w: w1, z: z1, vg: 0, km: 0, hb: 0 },
+          { dt: t23, i0: i2, v0: v2, r: r23, phi: phi23, w: w1, z: z1, vg: vbus, km: 0, hb: vbus },
+          { dt: t30, i0: i3, v0: v3, r: r30, phi: phi30, w: w1, z: z1, vg: 0, km: 0, hb: 0 },
+        ];
+      }
+
+      function calc_pout_ss(ss, vout) {
+        let qout = 0;
+        let tsw = 0;
+        for (let state of ss) {
+          tsw += state.dt;
+          if (state.km !== 0) {
+            let q1 = ((state.i0 + state.i0 + state.km * state.dt) * state.dt) / 2;
+            let q2 = (state.r / state.z / state.w) * (Math.sin(state.phi + state.w * state.dt) - Math.sin(state.phi));
+            qout += q1 - q2;
+          }
+        }
+        let iout = qout / tsw;
+        let pout = iout * vout;
+        return pout;
+      }
+
+      function calc_pout_i0(i0, lr, lm, cr, vbus, vout, t12) {
+        let ss = steady_state_i0(i0, lr, lm, cr, vbus, vout, t12);
+        return calc_pout_ss(ss, vout);
+      }
+
+      function steady_state_pout(pout, lr, lm, cr, vbus, vout, t12) {
+        const eq_max_i0 = (i) => steady_state_i0(i, lr, lm, cr, vbus, vout, t12).slice(-1)[0].dt;
+        let i0_max = vbus / (lr / cr) ** 0.5;
+        while (eq_max_i0(i0_max) > 0) {
+          i0_max *= 2;
+        }
+        i0_max = nsolve(eq_max_i0, 1e-6, i0_max, brent);
+
+        const eq = (i) => calc_pout_i0(i, lr, lm, cr, vbus, vout, t12) - pout;
+        let i0 = nsolve(eq, 1e-6, i0_max, brent);
+
+        return steady_state_i0(i0, lr, lm, cr, vbus, vout, t12);
+      }
+
+      (() => {
+        const fmt = (x) => {
+          if (x === 0 || x === -0.0 || x === 0.0) {
+            return "0";
+          }
+          let m = Math.floor(Math.log10(Math.abs(x)) / 3);
+          let b = x / 10 ** (3 * m);
+          let metricPrefix;
+          switch (m) {
+            case 8:
+              metricPrefix = "Y";
+              break;
+            case 7:
+              metricPrefix = "Z";
+              break;
+            case 6:
+              metricPrefix = "E";
+              break;
+            case 5:
+              metricPrefix = "P";
+              break;
+            case 4:
+              metricPrefix = "T";
+              break;
+            case 3:
+              metricPrefix = "G";
+              break;
+            case 2:
+              metricPrefix = "M";
+              break;
+            case 1:
+              metricPrefix = "k";
+              break;
+            case 0:
+              metricPrefix = "";
+              break;
+            case -1:
+              metricPrefix = "m";
+              break;
+            case -2:
+              metricPrefix = "μ";
+              break;
+            case -3:
+              metricPrefix = "n";
+              break;
+            case -4:
+              metricPrefix = "p";
+              break;
+            case -5:
+              metricPrefix = "f";
+              break;
+            case -6:
+              metricPrefix = "a";
+              break;
+            case -7:
+              metricPrefix = "z";
+              break;
+            case -8:
+              metricPrefix = "y";
+              break;
+            default:
+              metricPrefix = `e${(3 * m).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+          }
+          let s = b.toLocaleString(undefined, { maximumFractionDigits: 3 }) + metricPrefix;
+          return s;
+        };
+        let lr = 30e-6;
+        let lm = 1e-3;
+        let cr = 68e-9;
+        let t12 = 800e-9;
+        const test1 = () => {
+          let vbus = 410;
+          let vout = 150;
+          for (let i0 of [0.001, 0.01, 0.1, 0.2, 0.5, 1, 2, 5]) {
+            let ss = steady_state_i0(i0, lr, lm, cr, vbus, vout, t12);
+            console.log(
+              `i0=${i0}`,
+              ss.reduce((acc, el) => acc + " " + fmt(el.dt), "")
+            );
+          }
+          let ss = steady_state_pout(2, lr, lm, cr, vbus, vout, t12);
+          console.log(calc_pout_ss(ss, vout));
+        };
+        const test2 = () => {
+          let vbus = 410;
+          let vout = 77 * 5;
+          let ss = steady_state_pout(40, lr, lm, cr, vbus, vout, t12);
+          console.log(calc_pout_ss(ss, vout));
+        };
+        test1();
+        test2();
+      })();
+    </script>
+    <script>
+      window.onload = init;
+
+      function init() {
+        // bind events
+        document.querySelector("#findss").onclick = findSteadyState;
+        document.querySelector("#vload").onchange = vloadChanged;
+        document.querySelector("#iload").onchange = iloadChanged;
+        document.querySelector("#pload").onchange = ploadChanged;
+      }
+
+      function vloadChanged() {
+        let vload = document.querySelector("#vload").valueAsNumber;
+        let iload = document.querySelector("#iload").valueAsNumber;
+        let pload = vload * iload;
+        document.querySelector("#pload").value = pload;
+      }
+
+      function iloadChanged() {
+        let vload = document.querySelector("#vload").valueAsNumber;
+        let iload = document.querySelector("#iload").valueAsNumber;
+        let pload = vload * iload;
+        document.querySelector("#pload").value = pload;
+      }
+
+      function ploadChanged() {
+        let vload = document.querySelector("#vload").valueAsNumber;
+        let pload = document.querySelector("#pload").valueAsNumber;
+        let iload = pload / vload;
+        document.querySelector("#iload").value = iload;
+      }
+
+      function findSteadyState() {
+        let lr = document.querySelector("#lr").valueAsNumber * 1e-6;
+        let lm = document.querySelector("#lm").valueAsNumber * 1e-6;
+        let cr = document.querySelector("#cr").valueAsNumber * 1e-9;
+        let nps = document.querySelector("#nps").valueAsNumber;
+        let t12 = document.querySelector("#t12").valueAsNumber * 1e-9;
+        let vbus = document.querySelector("#vbus").valueAsNumber;
+        let vload = document.querySelector("#vload").valueAsNumber;
+        let pload = document.querySelector("#pload").valueAsNumber;
+        let vout = vload * nps;
+
+        let result = steady_state_pout(pload, lr, lm, cr, vbus, vout, t12);
+
+        let data = sample(result, 2000);
+        let measurement = evaluateSampled(result, data);
+        fillTable(measurement);
+
+        drawSingleOP(data);
+      }
+
+      function fillTable(measurement) {
+        document.querySelector("#header").setAttribute("style", "visibility: visible;");
+        let nps = document.querySelector("#nps").valueAsNumber;
+        let row = [
+          document.querySelector("#lr").valueAsNumber,
+          document.querySelector("#lm").valueAsNumber,
+          document.querySelector("#cr").valueAsNumber,
+          document.querySelector("#nps").valueAsNumber,
+          document.querySelector("#t12").valueAsNumber,
+          document.querySelector("#vbus").valueAsNumber,
+          document.querySelector("#vload").valueAsNumber,
+          document.querySelector("#iload").valueAsNumber,
+          document.querySelector("#pload").valueAsNumber,
+          measurement.fsw / 1e3,
+          measurement.dutyHighSide * 100,
+          measurement.dutyDiode * 100,
+          measurement.iRMSPri,
+          measurement.vMeanRes,
+          measurement.vACRMSRes,
+          measurement.vRMSPri,
+          measurement.iRMSOut * nps,
+          measurement.iPPeakOut * nps,
+          measurement.psiPri / 1e-3,
+          measurement.qLowHigh / 1e-9,
+        ];
+
+        let newRow = document.createElement("tr");
+        let i = 0;
+        for (let x of row) {
+          let newCell = document.createElement("td");
+          newCell.innerHTML = x.toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+          });
+          if (i < 5) {
+            newCell.classList.add("table-parameter");
+          } else if (i < 9) {
+            newCell.classList.add("table-operatingpoint");
+          }
+          newRow.append(newCell);
+          i++;
+        }
+        document.querySelector("#rows").appendChild(newRow);
+      }
+    </script>
+    <style>
+      * {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      h1 {
+        color: white;
+        background-color: indigo;
+      }
+      label {
+        display: inline-block;
+        width: 15em;
+        color: blue;
+        /* text-align: right; */
+      }
+      label.unit {
+        color: darkblue;
+        font-family: monospace;
+      }
+      input.number {
+        text-align: right;
+        width: 6em;
+      }
+      .vsep {
+        height: 10px;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid gray;
+        padding: 3px;
+      }
+      th {
+        text-align: center;
+        background-color: #c2c2c2;
+      }
+      td {
+        text-align: right;
+      }
+      td.table-parameter {
+        background-color: lemonchiffon;
+      }
+      td.table-operatingpoint {
+        background-color: lightseagreen;
+      }
+    </style>
+    <title>AHBLLC Designer</title>
+  </head>
+  <body>
+    <h1>Design Input</h1>
+    <label for="lr">Resonant inductance</label>
+    <input type="number" class="number" name="lr" id="lr" placeholder="Lr" value="30" />
+    <label for="lr" class="unit">μH</label>
+    <br />
+    <label for="lm">Magnetizing inductance</label>
+    <input type="number" class="number" name="lm" id="lm" placeholder="Lm" value="1000" step="10" />
+    <label for="lm" class="unit">μH</label>
+    <br />
+    <label for="cr">Resonant capacitance</label>
+    <input type="number" class="number" name="cr" id="cr" placeholder="Cr" value="68" />
+    <label for="cr" class="unit">nF</label>
+    <br />
+    <label for="nps">Primary : secondary turns ratio</label>
+    <input type="number" class="number" name="nps" id="nps" placeholder="nps" value="5" step="0.1" />
+    <label for="nps" class="unit"></label>
+    <br />
+    <label for="t12">Time delay after didoe off</label>
+    <input type="number" class="number" name="t12" id="t12" placeholder="t12" value="800" step="100" />
+    <label for="t12" class="unit">ns</label>
+    <br />
+
+    <h1>Operating Point</h1>
+    <label for="vbus">DC bus voltage</label>
+    <input type="number" class="number" name="vbus" id="vbus" placeholder="Vbus" value="410" />
+    <label for="vbus" class="unit">V</label>
+    <br />
+    <label for="vload">Load voltage</label>
+    <input type="number" class="number" name="vload" id="vload" placeholder="Vload" value="40" />
+    <label for="vload" class="unit">V</label>
+    <br />
+    <label for="iload">Load current</label>
+    <input
+      type="number"
+      class="number"
+      name="iload"
+      id="iload"
+      placeholder="Iload"
+      value="1"
+      step="0.1"
+      min="0"
+      max="10"
+    />
+    <label for="iload" class="unit">A</label>
+    <br />
+    <label for="pload">Load power</label>
+    <input type="number" class="number" name="pload" id="pload" placeholder="Pload" value="40" />
+    <label for="pload" class="unit">W</label>
+    <br />
+    <div class="vsep"></div>
+    <label for="findss"></label>
+    <input type="button" name="findss" id="findss" value="Find Steady-State!" />
+
+    <h1>Result</h1>
+    <p id="result"></p>
+    <table>
+      <tr id="header" style="visibility: hidden;">
+        <th>L<sub>r</sub></th>
+        <th>L<sub>m</sub></th>
+        <th>C<sub>r</sub></th>
+        <th>n<sub>ps</sub></th>
+        <th>t<sub>12</sub></th>
+        <th>V<sub>bus</sub></th>
+        <th>V<sub>load</sub></th>
+        <th>I<sub>load</sub></th>
+        <th>P<sub>load</sub></th>
+        <th>f<sub>sw</sub></th>
+        <th>δ<sub>hs</sub></th>
+        <th>δ<sub>dio</sub></th>
+        <th>I<sub>rms,pri</sub></th>
+        <th>V<sub>mean,res</sub></th>
+        <th>V<sub>ac,res</sub></th>
+        <th>V<sub>rms,pri</sub></th>
+        <th>I<sub>rms,out</sub></th>
+        <th>I<sub>ppk,out</sub></th>
+        <th>Ψ<sub>pri</sub></th>
+        <th>Q<sub>lh</sub></th>
+      </tr>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <h1>Waveform</h1>
+    <div id="chart"></div>
+  </body>
+</html>
