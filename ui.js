@@ -18,8 +18,14 @@ function init() {
   document.querySelector("#result-inverse").onclick = resultInverseClicked;
   document.querySelector("#result-remove").onclick = resultRemoveClicked;
   document.querySelector("#action-addremoveop").onclick = addOperatingPoint;
-  for (let i = 0; i < document.querySelector("#result-table-header").cells.length; ++i) {
-    document.querySelector("#result-table-header").cells[i].onclick = showExplanation;
+  for (
+    let i = 0;
+    i < document.querySelector("#result-table-header").cells.length;
+    ++i
+  ) {
+    document.querySelector("#result-table-header").cells[
+      i
+    ].onclick = showExplanation;
   }
 }
 
@@ -29,7 +35,8 @@ function addOperatingPoint() {
   if (window.app.operatingPointNumber >= window.app.maximumOperatingPoint) {
     return;
   }
-  let newOpIndex = window.app.operatingPointOrder[window.app.operatingPointNumber];
+  let newOpIndex =
+    window.app.operatingPointOrder[window.app.operatingPointNumber];
   let opTemplate = document.querySelector("#operating-point-template");
   let newOp = opTemplate.content.cloneNode(true);
   for (let n of newOp.querySelectorAll("*")) {
@@ -42,24 +49,35 @@ function addOperatingPoint() {
     let nfor = n.getAttribute("for");
     n.setAttribute("for", `${nfor}${newOpIndex}`);
   }
-  newOp.querySelector(".op").setAttribute("id", `op${newOpIndex}`);
+  newOp.querySelector("div.op").setAttribute("id", `op${newOpIndex}`);
   let opContainer = document.querySelector("#operating-points-container");
   opContainer.appendChild(newOp);
   window.app.operatingPointNumber++;
-  document.querySelector(`#action-addremoveop${newOpIndex}`).onclick = removeOperatingPoint;
+  document.querySelector(
+    `#action-addremoveop${newOpIndex}`
+  ).onclick = removeOperatingPoint;
   document.querySelector(`#vload${newOpIndex}`).onclick = vloadChanged;
   document.querySelector(`#iload${newOpIndex}`).onclick = iloadChanged;
   document.querySelector(`#pload${newOpIndex}`).onclick = ploadChanged;
-  document.querySelector(`#vload${newOpIndex}`).value = document.querySelector("#vload").valueAsNumber;
-  document.querySelector(`#iload${newOpIndex}`).value = document.querySelector("#iload").valueAsNumber;
-  document.querySelector(`#pload${newOpIndex}`).value = document.querySelector("#pload").valueAsNumber;
+  document.querySelector(`#vload${newOpIndex}`).value = document.querySelector(
+    "#vload"
+  ).valueAsNumber;
+  document.querySelector(`#iload${newOpIndex}`).value = document.querySelector(
+    "#iload"
+  ).valueAsNumber;
+  document.querySelector(`#pload${newOpIndex}`).value = document.querySelector(
+    "#pload"
+  ).valueAsNumber;
 }
 
 function removeOperatingPoint() {
   let opIndex = parseInt(this.id.slice(-1)[0]);
   let opToDelete = document.querySelector(`#op${opIndex}`);
   opToDelete.parentNode.removeChild(opToDelete);
-  window.app.operatingPointOrder.splice(window.app.operatingPointOrder.indexOf(opIndex), 1);
+  window.app.operatingPointOrder.splice(
+    window.app.operatingPointOrder.indexOf(opIndex),
+    1
+  );
   window.app.operatingPointOrder.push(opIndex);
   window.app.operatingPointNumber--;
 }
@@ -129,34 +147,43 @@ function findSteadyState(n) {
   }
   window.app.resultIndices.push(currentResultId);
 
+  let sampledData;
+  let measurement;
   try {
     let steadyState = steady_state_pout(pload, lr, lm, cr, vbus, vout, t12);
-
-    let sampledData = sample(steadyState, 2000);
-    let measurement = evaluateSampled(steadyState, sampledData);
-
-    fillTable(measurement, opIndex);
-
-    drawSingleOP(sampledData);
+    sampledData = sample(steadyState, 2000);
+    measurement = evaluateSampled(steadyState, sampledData);
   } catch (e) {
     let pmax = e.value;
-    fillTableError(pmax, opIndex);
-    drawSingleOPError(pmax);
+    sampledData = pmax;
+    measurement = pmax;
+  } finally {
+    fillTable(measurement, opIndex);
+    drawSingleOP(sampledData);
   }
 }
 
 // ----------------------------------------------------------------------------
 
 function setExplanation(s) {
-  document.querySelector("#result-explanation").classList.remove("result-explanation-default");
-  document.querySelector("#result-explanation").classList.add("result-explanation-clicked");
+  document
+    .querySelector("#result-explanation")
+    .classList.remove("result-explanation-default");
+  document
+    .querySelector("#result-explanation")
+    .classList.add("result-explanation-clicked");
   document.querySelector("#result-explanation").innerHTML = s;
 }
 
 function resetExplanation() {
-  document.querySelector("#result-explanation").classList.add("result-explanation-default");
-  document.querySelector("#result-explanation").classList.remove("result-explanation-clicked");
-  document.querySelector("#result-explanation").innerHTML = "Click head titles for more information.";
+  document
+    .querySelector("#result-explanation")
+    .classList.add("result-explanation-default");
+  document
+    .querySelector("#result-explanation")
+    .classList.remove("result-explanation-clicked");
+  document.querySelector("#result-explanation").innerHTML =
+    "Click head titles for more information.";
 }
 
 function showExplanation() {
@@ -175,84 +202,67 @@ function fillTable(measurement, n) {
   for (let resultAction of document.querySelectorAll(".result")) {
     resultAction.setAttribute("style", "display: inline;");
   }
-  document.querySelector("#result-table-header").setAttribute("style", "display: table-row;");
+  document
+    .querySelector("#result-table-header")
+    .setAttribute("style", "display: table-row;");
   let nps = document.querySelector("#nps").valueAsNumber;
-  let row = [
-    window.app.resultIndices.slice(-1)[0],
-    document.querySelector("#lr").valueAsNumber,
-    document.querySelector("#lm").valueAsNumber,
-    document.querySelector("#cr").valueAsNumber,
-    document.querySelector("#nps").valueAsNumber,
-    document.querySelector("#t12").valueAsNumber,
-    document.querySelector(`#vbus${opIndex}`).valueAsNumber,
-    document.querySelector(`#vload${opIndex}`).valueAsNumber,
-    document.querySelector(`#iload${opIndex}`).valueAsNumber,
-    document.querySelector(`#pload${opIndex}`).valueAsNumber,
-    measurement.fsw / 1e3,
-    measurement.dutyHighSide * 100,
-    measurement.dutyDiode * 100,
-    measurement.iRMSPri,
-    measurement.vMeanRes,
-    measurement.vACRMSRes,
-    measurement.vRMSPri,
-    measurement.iRMSOut * nps,
-    measurement.iPPeakOut * nps,
-    measurement.psiPri / 1e-3,
-    measurement.qLowHigh / 1e-9,
-  ];
+  let row;
+  if (!(typeof measurement === "number")) {
+    row = [
+      window.app.resultIndices.slice(-1)[0],
+      document.querySelector("#lr").valueAsNumber,
+      document.querySelector("#lm").valueAsNumber,
+      document.querySelector("#cr").valueAsNumber,
+      document.querySelector("#nps").valueAsNumber,
+      document.querySelector("#t12").valueAsNumber,
+      document.querySelector(`#vbus${opIndex}`).valueAsNumber,
+      document.querySelector(`#vload${opIndex}`).valueAsNumber,
+      document.querySelector(`#iload${opIndex}`).valueAsNumber,
+      document.querySelector(`#pload${opIndex}`).valueAsNumber,
+      measurement.fsw / 1e3,
+      measurement.dutyHighSide * 100,
+      measurement.dutyDiode * 100,
+      measurement.iRMSPri,
+      measurement.vMeanRes,
+      measurement.vACRMSRes,
+      measurement.vRMSPri,
+      measurement.iRMSOut * nps,
+      measurement.iPPeakOut * nps,
+      measurement.psiPri / 1e-3,
+      measurement.qLowHigh / 1e-9,
+    ];
+  } else {
+    row = [
+      window.app.resultIndices.slice(-1)[0],
+      document.querySelector("#lr").valueAsNumber,
+      document.querySelector("#lm").valueAsNumber,
+      document.querySelector("#cr").valueAsNumber,
+      document.querySelector("#nps").valueAsNumber,
+      document.querySelector("#t12").valueAsNumber,
+      document.querySelector(`#vbus${opIndex}`).valueAsNumber,
+      document.querySelector(`#vload${opIndex}`).valueAsNumber,
+      document.querySelector(`#iload${opIndex}`).valueAsNumber,
+      document.querySelector(`#pload${opIndex}`).valueAsNumber,
+    ];
+  }
 
   let newRow = document.createElement("tr");
   let header = document.querySelector("#result-table-header");
   let i = 0;
   for (let x of row) {
     let newCell = document.createElement("td");
-    newCell.innerHTML = x.toLocaleString(undefined, {
-      maximumFractionDigits: 2,
-    });
-    if (header.cells[i].className === "table-header-parameter") {
-      newCell.classList.add("table-parameter");
-    } else if (header.cells[i].className === "table-header-operatingpoint") {
-      newCell.classList.add("table-operatingpoint");
+    if (i === 0) {
+      let a = document.createElement("a");
+      a.href = `#fig${window.app.resultIndices.slice(-1)[0]}`;
+      a.innerHTML = x.toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+      });
+      newCell.appendChild(a);
     } else {
-      newCell.classList.add("table-performance");
+      newCell.innerHTML = x.toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+      });
     }
-    newRow.append(newCell);
-    i++;
-  }
-  newRow.onclick = tableClicked;
-  document.querySelector("#result-table-rows").appendChild(newRow);
-}
-
-function fillTableError(errorValue, n) {
-  let opIndex = !n || n === 0 ? "" : n;
-  for (let resultAction of document.querySelectorAll(".result-action")) {
-    resultAction.setAttribute("style", "display: inline-block;");
-  }
-  for (let resultAction of document.querySelectorAll(".result")) {
-    resultAction.setAttribute("style", "display: inline;");
-  }
-  document.querySelector("#result-table-header").setAttribute("style", "display: table-row;");
-  let row = [
-    window.app.resultIndices.slice(-1)[0],
-    document.querySelector("#lr").valueAsNumber,
-    document.querySelector("#lm").valueAsNumber,
-    document.querySelector("#cr").valueAsNumber,
-    document.querySelector("#nps").valueAsNumber,
-    document.querySelector("#t12").valueAsNumber,
-    document.querySelector(`#vbus${opIndex}`).valueAsNumber,
-    document.querySelector(`#vload${opIndex}`).valueAsNumber,
-    document.querySelector(`#iload${opIndex}`).valueAsNumber,
-    document.querySelector(`#pload${opIndex}`).valueAsNumber,
-  ];
-
-  let newRow = document.createElement("tr");
-  let header = document.querySelector("#result-table-header");
-  let i = 0;
-  for (let x of row) {
-    let newCell = document.createElement("td");
-    newCell.innerHTML = x.toLocaleString(undefined, {
-      maximumFractionDigits: 2,
-    });
     if (header.cells[i].className === "table-header-parameter") {
       newCell.classList.add("table-parameter");
     } else if (header.cells[i].className === "table-header-operatingpoint") {
@@ -264,11 +274,14 @@ function fillTableError(errorValue, n) {
     i++;
   }
 
-  let newCell = document.createElement("td");
-  newCell.classList.add("result-error-message");
-  newCell.setAttribute("colspan", "11");
-  newCell.innerText = `${errorValue}`;
-  newRow.append(newCell);
+  if (typeof measurement === "number") {
+    let errorValue = measurement;
+    let newCell = document.createElement("td");
+    newCell.classList.add("result-error-message");
+    newCell.setAttribute("colspan", "11");
+    newCell.innerText = `${errorValue}`;
+    newRow.append(newCell);
+  }
 
   newRow.onclick = tableClicked;
   document.querySelector("#result-table-rows").appendChild(newRow);
@@ -293,15 +306,17 @@ function refreshTable() {
   }
 }
 
-function tableClicked() {
-  let selected = this.rowIndex - 1;
-  let j = window.app.selectedRows.indexOf(selected);
-  if (j === -1) {
-    window.app.selectedRows[window.app.selectedRows.length] = selected;
-  } else {
-    window.app.selectedRows.splice(j, 1);
+function tableClicked(e) {
+  if (e.target.nodeName !== "A") {
+    let selected = this.rowIndex - 1;
+    let j = window.app.selectedRows.indexOf(selected);
+    if (j === -1) {
+      window.app.selectedRows[window.app.selectedRows.length] = selected;
+    } else {
+      window.app.selectedRows.splice(j, 1);
+    }
+    refreshTable();
   }
-  refreshTable();
 }
 
 function resultInverseClicked() {
@@ -321,13 +336,17 @@ function resultRemoveClicked() {
   window.app.selectedRows.sort((a, b) => a - b);
   let table = document.querySelector("#result-table-rows");
   for (let i = window.app.selectedRows.length - 1; i >= 0; --i) {
-    let idToRemove = parseInt(table.rows[window.app.selectedRows[i]].cells[0].textContent);
+    let idToRemove = parseInt(
+      table.rows[window.app.selectedRows[i]].cells[0].textContent
+    );
     let figToRemove = document.querySelector(`#fig${idToRemove}`);
     figToRemove.parentNode.removeChild(figToRemove);
     table.deleteRow(window.app.selectedRows[i]);
   }
   if (table.rows.length === 0) {
-    document.querySelector("#result-table-header").setAttribute("style", "display: none;");
+    document
+      .querySelector("#result-table-header")
+      .setAttribute("style", "display: none;");
     for (let el of document.querySelectorAll(".result")) {
       el.setAttribute("style", "display: none;");
     }
