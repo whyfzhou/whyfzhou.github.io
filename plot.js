@@ -1,8 +1,12 @@
 function drawSingleOP(data) {
-  let oldPlot = document.querySelector("#plot");
-  if (oldPlot) {
-    oldPlot.remove();
-  }
+  // let oldPlot = document.querySelector("#plot");
+  // if (oldPlot) {
+  //   oldPlot.remove();
+  // }
+  let fig = document.createElement("div");
+  fig.setAttribute("id", `fig${window.app.resultIndices.slice(-1)[0]}`);
+  fig.setAttribute("style", "margin-left: auto; margin-right: auto;");
+  document.querySelector("#chart").appendChild(fig);
 
   let t = data.t;
   let ir = data.ir;
@@ -15,11 +19,12 @@ function drawSingleOP(data) {
   const height = 300;
 
   const svg = d3
-    .select("#chart")
+    .select(`#fig${window.app.resultIndices.slice(-1)[0]}`)
     .append("svg")
-    .attr("id", "plot")
+    .attr("id", `plot${window.app.resultIndices.slice(-1)[0]}`)
     .attr("width", width)
-    .attr("height", height);
+    .attr("height", height)
+    .attr("style", "margin-left: auto; margin-right: auto;");
   const tScale = d3
     .scaleLinear()
     .domain([0, Math.max(...t) / 1e-6])
@@ -48,18 +53,8 @@ function drawSingleOP(data) {
   let vrData = t.map((e, k) => ({ x: e / 1e-6, y: vr[k] }));
   let vhbData = t.map((e, k) => ({ x: e / 1e-6, y: vhb[k] }));
 
-  svg
-    .append("path")
-    .classed("data", true)
-    .attr("d", currentLine(irData))
-    .style("fill", "none")
-    .style("stroke", "blue");
-  svg
-    .append("path")
-    .classed("data", true)
-    .attr("d", currentLine(imData))
-    .style("fill", "none")
-    .style("stroke", "red");
+  svg.append("path").classed("data", true).attr("d", currentLine(irData)).style("fill", "none").style("stroke", "blue");
+  svg.append("path").classed("data", true).attr("d", currentLine(imData)).style("fill", "none").style("stroke", "red");
   svg
     .append("path")
     .classed("data", true)
@@ -96,11 +91,7 @@ function drawSingleOP(data) {
     .classed("grid-line", true)
     .attr("y2", -(height - 2 * padding))
     .attr("stroke", "#dddddd");
-  svg
-    .append("g")
-    .attr("class", "i-axis")
-    .attr("transform", `translate(${padding})`)
-    .call(iAxis);
+  svg.append("g").attr("class", "i-axis").attr("transform", `translate(${padding})`).call(iAxis);
   svg
     .selectAll("g.i-axis g.tick")
     .append("line")
@@ -118,4 +109,30 @@ function drawSingleOP(data) {
     .classed("grid-line", true)
     .attr("x2", width - 2 * padding)
     .attr("stroke", "#dddddd");
+
+  // document.querySelector("#plot${window.app.resultIndices.slice(-1)[0]}");
+  // let caption = document.createTextNode(
+  //   `Figure ${window.app.resultIndices.slice(-1)[0]}`
+  // );
+  let caption = document.createElement("p");
+  caption.innerHTML = `Figure ${window.app.resultIndices.slice(-1)[0]}`;
+  caption.setAttribute("style", "text-align: center;");
+  fig.appendChild(caption);
+}
+
+function drawSingleOPError(errorValue) {
+  let fig = document.createElement("div");
+  fig.setAttribute("id", `fig${window.app.resultIndices.slice(-1)[0]}`);
+  fig.setAttribute("style", "margin-left: auto; margin-right: auto;");
+  document.querySelector("#chart").appendChild(fig);
+
+  let errorMessage = document.createElement("p");
+  errorMessage.classList.add("result-error-message");
+  errorMessage.innerHTML = `Steady-state could not be found, since the maximum possible output power is ${errorValue}.`;
+  fig.appendChild(errorMessage);
+
+  let caption = document.createElement("p");
+  caption.innerHTML = `Figure ${window.app.resultIndices.slice(-1)[0]}`;
+  caption.setAttribute("style", "text-align: center;");
+  fig.appendChild(caption);
 }

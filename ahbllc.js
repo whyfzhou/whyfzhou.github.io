@@ -227,10 +227,15 @@ function steady_state_pout(pout, lr, lm, cr, vbus, vout, t12) {
 
   const eq = (i) => calc_pout_i0(i, lr, lm, cr, vbus, vout, t12) - pout;
   let i0 = nsolve(eq, 1e-6, i0_max, brent);
+  if (Number.isNaN(i0)) {
+    let pmax = calc_pout_i0(i0_max, lr, lm, cr, vbus, vout, t12);
+    throw { name: "ValueError", message: "Failed to find a steady-state.", value: pmax };
+  }
 
   return steady_state_i0(i0, lr, lm, cr, vbus, vout, t12);
 }
 
+/*
 (() => {
   const fmt = (x) => {
     if (x === 0 || x === -0.0 || x === 0.0) {
@@ -316,10 +321,21 @@ function steady_state_pout(pout, lr, lm, cr, vbus, vout, t12) {
   };
   const test2 = () => {
     let vbus = 410;
-    let vout = 77 * 5;
-    let ss = steady_state_pout(40, lr, lm, cr, vbus, vout, t12);
-    console.log(calc_pout_ss(ss, vout));
+    // let vout = 77 * 5;
+    // let p = 40;
+    let t12 = 1500e-9;
+    let vout = 80 * 3.5;
+    let p = 80;
+    try {
+      let ss = steady_state_pout(p, lr, lm, cr, vbus, vout, t12);
+      console.log(calc_pout_ss(ss, vout));
+    } catch (e) {
+      console.error(e.name);
+      console.error(e.message);
+      console.error(`Maximum possible output power: ${e.value}.`);
+    }
   };
-  test1();
+  // test1();
   test2();
 })();
+*/

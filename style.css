@@ -1,45 +1,105 @@
 * {
   font-family: Arial, Helvetica, sans-serif;
 }
-h1 {
-  color: white;
-  background-color: #0e1428;
+.container {
+  max-width: 1080px;
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-left: auto;
+  margin-right: auto;
 }
+h1 {
+  color: #444;
+  line-height: 1;
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 0.3em;
+  padding-top: 0.3em;
+}
+
+/* --------------------------------- */
+
 label {
-  display: inline-block;
-  width: 15em;
   color: #0e1428;
-  /* text-align: right; */
 }
 label.unit {
   color: #7b9e89;
   font-family: monospace;
+  /* grid-column: 3; */
 }
+div.design-entry {
+  display: grid;
+  grid-template-columns: 15em repeat(1, 5em 2em);
+  grid-gap: 3px;
+  /* grid-auto-rows: minmax(100px, auto); */
+  /* width: 30%; */
+}
+/* --------------------------------- */
+div.op {
+  display: inline-block;
+}
+div.design-entry-no-prompt {
+  display: grid;
+  grid-template-columns: 5em 2em;
+  grid-gap: 3px;
+}
+.decol1 {
+  grid-column: 1;
+}
+
+label.prompt {
+  grid-column: 1;
+}
+.operating-point-0 {
+  grid-column: 2;
+}
+label.operating-point-0 {
+  grid-column: 3;
+}
+
 input.number {
   text-align: right;
-  width: 6em;
+  border: none;
+  border-bottom: 0.1em solid black;
+  outline: none;
 }
+input.number::selection {
+  background-color: #2ecc71;
+}
+input.number:focus {
+  border-bottom: 0.2rem solid #27ae60;
+  /* box-shadow: 0 0 5px rgba(81, 203, 238, 1); */
+}
+
+/* --------------------------------- */
+
 table {
   border-collapse: collapse;
+  border: 1px solid #27ae60;
+  box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 th,
 td {
-  border: 1px solid #7b9e89;
+  /* border: 1px solid #7b9e89; */
   padding: 3px;
 }
 th {
   text-align: center;
-  background-color: #f0a202;
+  background-color: #27ae60;
+  color: #eee;
   font-style: normal;
+  cursor: help;
 }
 td {
   text-align: right;
 }
 td.table-parameter {
-  background-color: lemonchiffon;
+  background-color: #f0f0ff;
 }
 td.table-operatingpoint {
-  background-color: #f18805;
+  background-color: #f0fff0;
 }
 
 table tr:hover {
@@ -53,18 +113,32 @@ td.table-selected {
   text-decoration: line-through;
 }
 
-div.result-action,
-div.action {
-  display: inline-block;
-  background-color: #d95d39;
-  /* height: 2em; */
-  margin: 5px;
-  /* margin-left: 10px;
-  margin-right: 10px;
-  margin-bottom: 10px; */
-  text-align: center;
-  /* vertical-align: center; */
-  /* align-items: center; */
-  width: 20%;
-  cursor: default;
+.result-explanation-default {
+  font-style: italic;
+  color: #888;
+}
+
+.result-explanation-clicked {
+  font-style: normal;
+  color: #333;
+}
+
+.result-selected {
+  font-style: italic;
+  text-decoration: line-through;
+}
+
+/* --------------------------------- */
+
+div.waveform {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-gap: 3px;
+}
+
+/* --------------------------------- */
+
+.result-error-message {
+  background-color: darkred;
+  color: yellow;
 }

@@ -1,156 +1,193 @@
 window.onload = init;
-var selectedRows = [];
+window.app = [];
+window.app.selectedRows = [];
+window.app.operatingPointOrder = [0, 1, 2, 3, 4];
+window.app.operatingPointNumber = 1;
+window.app.maximumOperatingPoint = 5;
+window.app.resultIndices = [];
+
+// ----------------------------------------------------------------------------
 
 function init() {
   // bind events
-  document.querySelector("#action-findss").onclick = findSteadyState;
+  document.querySelector("#action-findss").onclick = findSteadyState0;
+  document.querySelector("#action-findssa").onclick = findSteadyStateAll;
   document.querySelector("#vload").onchange = vloadChanged;
   document.querySelector("#iload").onchange = iloadChanged;
   document.querySelector("#pload").onchange = ploadChanged;
   document.querySelector("#result-inverse").onclick = resultInverseClicked;
   document.querySelector("#result-remove").onclick = resultRemoveClicked;
-  for (let i = 0; i < document.querySelector("#header").cells.length; ++i) {
-    document.querySelector("#header").cells[i].onclick = showExplanation;
+  document.querySelector("#action-addremoveop").onclick = addOperatingPoint;
+  for (let i = 0; i < document.querySelector("#result-table-header").cells.length; ++i) {
+    document.querySelector("#result-table-header").cells[i].onclick = showExplanation;
   }
-  // document.querySelector("#measurementTable").onclick = tableClicked;
 }
 
-function showExplanation() {
-  let explanation = this.innerHTML + ": " + this.getAttribute("data-tooltip");
-  document.querySelector("#result-explanation").innerHTML = explanation;
-  MathJax.Hub.Typeset(document.querySelector("#result-explanation"));
-  // output = document.querySelector("#result-explanation");
-  // MathJax.texReset();
-  // let options = MathJax.getMetricsFor(output);
-  // options.display = display.checked;
-  // MathJax.tex2chtmlPromise(input, options)
-  //   .then((node) => {
-  //     output.appendChild(node);
-  //     MathJax.startup.document.clear();
-  //     MathJax.startup.document.updateDocument();
-  //   })
-  //   .catch((err) => {
-  //     output.appendChild(document.createElement("pre")).appendChild(document.createTextNode(err.message));
-  //   });
-}
+// ----------------------------------------------------------------------------
 
-function refreshTable() {
-  let table = document.querySelector("#rows");
-  // let header = document.querySelector("#header");
-  for (let row = 0; row < table.rows.length; ++row) {
-    if (selectedRows.indexOf(row) === -1) {
-      for (let col = 0; col < table.rows[row].cells.length; ++col) {
-        table.rows[row].cells[col].classList.remove("table-selected");
-      }
-    } else {
-      for (let col = 0; col < table.rows[row].cells.length; ++col) {
-        table.rows[row].cells[col].classList.add("table-selected");
-      }
+function addOperatingPoint() {
+  if (window.app.operatingPointNumber >= window.app.maximumOperatingPoint) {
+    return;
+  }
+  let newOpIndex = window.app.operatingPointOrder[window.app.operatingPointNumber];
+  let opTemplate = document.querySelector("#operating-point-template");
+  let newOp = opTemplate.content.cloneNode(true);
+  for (let n of newOp.querySelectorAll("*")) {
+    let nid = n.getAttribute("id");
+    if (nid) {
+      n.setAttribute("id", `${nid}${newOpIndex}`);
     }
   }
+  for (let n of newOp.querySelectorAll("label.unit")) {
+    let nfor = n.getAttribute("for");
+    n.setAttribute("for", `${nfor}${newOpIndex}`);
+  }
+  newOp.querySelector(".op").setAttribute("id", `op${newOpIndex}`);
+  let opContainer = document.querySelector("#operating-points-container");
+  opContainer.appendChild(newOp);
+  window.app.operatingPointNumber++;
+  document.querySelector(`#action-addremoveop${newOpIndex}`).onclick = removeOperatingPoint;
+  document.querySelector(`#vload${newOpIndex}`).onclick = vloadChanged;
+  document.querySelector(`#iload${newOpIndex}`).onclick = iloadChanged;
+  document.querySelector(`#pload${newOpIndex}`).onclick = ploadChanged;
+  document.querySelector(`#vload${newOpIndex}`).value = document.querySelector("#vload").valueAsNumber;
+  document.querySelector(`#iload${newOpIndex}`).value = document.querySelector("#iload").valueAsNumber;
+  document.querySelector(`#pload${newOpIndex}`).value = document.querySelector("#pload").valueAsNumber;
 }
 
-function tableClicked() {
-  let selected = this.rowIndex - 1;
-  let j = selectedRows.indexOf(selected);
-  if (j === -1) {
-    selectedRows[selectedRows.length] = selected;
-  } else {
-    selectedRows.splice(j, 1);
-  }
-  // console.log(selectedRows);
-  refreshTable();
-}
-
-function resultInverseClicked() {
-  let table = document.querySelector("#rows");
-  for (let i = 0; i < table.rows.length; ++i) {
-    let j = selectedRows.indexOf(i);
-    if (j === -1) {
-      selectedRows[selectedRows.length] = i;
-    } else {
-      selectedRows.splice(j, 1);
-    }
-  }
-  // console.log(selectedRows);
-  refreshTable();
-}
-
-function resultRemoveClicked() {
-  selectedRows.sort();
-  let table = document.querySelector("#rows");
-  for (let i = selectedRows.length - 1; i >= 0; --i) {
-    table.deleteRow(selectedRows[i]);
-  }
-  if (table.rows.length === 0) {
-    document.querySelector("#header").setAttribute("style", "visibility: hidden;");
-    for (let el of document.querySelectorAll(".result")) {
-      el.setAttribute("style", "visibility: hidden;");
-    }
-  }
-  selectedRows = [];
+function removeOperatingPoint() {
+  let opIndex = parseInt(this.id.slice(-1)[0]);
+  let opToDelete = document.querySelector(`#op${opIndex}`);
+  opToDelete.parentNode.removeChild(opToDelete);
+  window.app.operatingPointOrder.splice(window.app.operatingPointOrder.indexOf(opIndex), 1);
+  window.app.operatingPointOrder.push(opIndex);
+  window.app.operatingPointNumber--;
 }
 
 function vloadChanged() {
-  let vload = document.querySelector("#vload").valueAsNumber;
-  let iload = document.querySelector("#iload").valueAsNumber;
+  let opIndex = parseInt(this.id.slice(-1)[0]);
+  if (Number.isNaN(opIndex)) {
+    opIndex = "";
+  }
+  let vload = document.querySelector(`#vload${opIndex}`).valueAsNumber;
+  let iload = document.querySelector(`#iload${opIndex}`).valueAsNumber;
   let pload = vload * iload;
-  document.querySelector("#pload").value = pload;
+  document.querySelector(`#pload${opIndex}`).value = pload;
 }
 
 function iloadChanged() {
-  let vload = document.querySelector("#vload").valueAsNumber;
-  let iload = document.querySelector("#iload").valueAsNumber;
+  let opIndex = parseInt(this.id.slice(-1)[0]);
+  if (Number.isNaN(opIndex)) {
+    opIndex = "";
+  }
+  let vload = document.querySelector(`#vload${opIndex}`).valueAsNumber;
+  let iload = document.querySelector(`#iload${opIndex}`).valueAsNumber;
   let pload = vload * iload;
-  document.querySelector("#pload").value = pload;
+  document.querySelector(`#pload${opIndex}`).value = pload;
 }
 
 function ploadChanged() {
-  let vload = document.querySelector("#vload").valueAsNumber;
-  let pload = document.querySelector("#pload").valueAsNumber;
+  let opIndex = parseInt(this.id.slice(-1)[0]);
+  if (Number.isNaN(opIndex)) {
+    opIndex = "";
+  }
+  let vload = document.querySelector(`#vload${opIndex}`).valueAsNumber;
+  let pload = document.querySelector(`#pload${opIndex}`).valueAsNumber;
   let iload = pload / vload;
-  document.querySelector("#iload").value = iload;
+  document.querySelector(`#iload${opIndex}`).value = iload;
 }
 
-function findSteadyState() {
+// ----------------------------------------------------------------------------
+
+function findSteadyState0() {
+  findSteadyState(0);
+}
+
+function findSteadyStateAll() {
+  for (let i = 0; i < window.app.operatingPointNumber; ++i) {
+    findSteadyState(window.app.operatingPointOrder[i]);
+  }
+}
+
+function findSteadyState(n) {
+  let opIndex = !n || n === 0 ? "" : n;
   let lr = document.querySelector("#lr").valueAsNumber * 1e-6;
   let lm = document.querySelector("#lm").valueAsNumber * 1e-6;
   let cr = document.querySelector("#cr").valueAsNumber * 1e-9;
   let nps = document.querySelector("#nps").valueAsNumber;
   let t12 = document.querySelector("#t12").valueAsNumber * 1e-9;
-  let vbus = document.querySelector("#vbus").valueAsNumber;
-  let vload = document.querySelector("#vload").valueAsNumber;
-  let pload = document.querySelector("#pload").valueAsNumber;
+  let vbus = document.querySelector(`#vbus${opIndex}`).valueAsNumber;
+  let vload = document.querySelector(`#vload${opIndex}`).valueAsNumber;
+  let pload = document.querySelector(`#pload${opIndex}`).valueAsNumber;
   let vout = vload * nps;
 
-  let result = steady_state_pout(pload, lr, lm, cr, vbus, vout, t12);
+  let currentResultId;
+  if (window.app.resultIndices.length === 0) {
+    currentResultId = 1;
+  } else {
+    currentResultId = window.app.resultIndices.slice(-1)[0] + 1;
+  }
+  window.app.resultIndices.push(currentResultId);
 
-  let data = sample(result, 2000);
-  let measurement = evaluateSampled(result, data);
-  fillTable(measurement);
+  try {
+    let steadyState = steady_state_pout(pload, lr, lm, cr, vbus, vout, t12);
 
-  drawSingleOP(data);
+    let sampledData = sample(steadyState, 2000);
+    let measurement = evaluateSampled(steadyState, sampledData);
+
+    fillTable(measurement, opIndex);
+
+    drawSingleOP(sampledData);
+  } catch (e) {
+    let pmax = e.value;
+    fillTableError(pmax, opIndex);
+    drawSingleOPError(pmax);
+  }
 }
 
-function fillTable(measurement) {
+// ----------------------------------------------------------------------------
+
+function setExplanation(s) {
+  document.querySelector("#result-explanation").classList.remove("result-explanation-default");
+  document.querySelector("#result-explanation").classList.add("result-explanation-clicked");
+  document.querySelector("#result-explanation").innerHTML = s;
+}
+
+function resetExplanation() {
+  document.querySelector("#result-explanation").classList.add("result-explanation-default");
+  document.querySelector("#result-explanation").classList.remove("result-explanation-clicked");
+  document.querySelector("#result-explanation").innerHTML = "Click head titles for more information.";
+}
+
+function showExplanation() {
+  let explanation = this.innerHTML + ": " + this.getAttribute("data-tooltip");
+  setExplanation(explanation);
+  MathJax.Hub.Typeset(document.querySelector("#result-explanation"));
+}
+
+// ----------------------------------------------------------------------------
+
+function fillTable(measurement, n) {
+  let opIndex = !n || n === 0 ? "" : n;
   for (let resultAction of document.querySelectorAll(".result-action")) {
-    resultAction.setAttribute("style", "visibility: visable");
+    resultAction.setAttribute("style", "display: inline-block;");
   }
   for (let resultAction of document.querySelectorAll(".result")) {
-    resultAction.setAttribute("style", "visibility: visable");
+    resultAction.setAttribute("style", "display: inline;");
   }
-  document.querySelector("#header").setAttribute("style", "visibility: visible;");
+  document.querySelector("#result-table-header").setAttribute("style", "display: table-row;");
   let nps = document.querySelector("#nps").valueAsNumber;
   let row = [
+    window.app.resultIndices.slice(-1)[0],
     document.querySelector("#lr").valueAsNumber,
     document.querySelector("#lm").valueAsNumber,
     document.querySelector("#cr").valueAsNumber,
     document.querySelector("#nps").valueAsNumber,
     document.querySelector("#t12").valueAsNumber,
-    document.querySelector("#vbus").valueAsNumber,
-    document.querySelector("#vload").valueAsNumber,
-    document.querySelector("#iload").valueAsNumber,
-    document.querySelector("#pload").valueAsNumber,
+    document.querySelector(`#vbus${opIndex}`).valueAsNumber,
+    document.querySelector(`#vload${opIndex}`).valueAsNumber,
+    document.querySelector(`#iload${opIndex}`).valueAsNumber,
+    document.querySelector(`#pload${opIndex}`).valueAsNumber,
     measurement.fsw / 1e3,
     measurement.dutyHighSide * 100,
     measurement.dutyDiode * 100,
@@ -165,7 +202,7 @@ function fillTable(measurement) {
   ];
 
   let newRow = document.createElement("tr");
-  let header = document.querySelector("#header");
+  let header = document.querySelector("#result-table-header");
   let i = 0;
   for (let x of row) {
     let newCell = document.createElement("td");
@@ -183,5 +220,124 @@ function fillTable(measurement) {
     i++;
   }
   newRow.onclick = tableClicked;
-  document.querySelector("#rows").appendChild(newRow);
+  document.querySelector("#result-table-rows").appendChild(newRow);
+}
+
+function fillTableError(errorValue, n) {
+  let opIndex = !n || n === 0 ? "" : n;
+  for (let resultAction of document.querySelectorAll(".result-action")) {
+    resultAction.setAttribute("style", "display: inline-block;");
+  }
+  for (let resultAction of document.querySelectorAll(".result")) {
+    resultAction.setAttribute("style", "display: inline;");
+  }
+  document.querySelector("#result-table-header").setAttribute("style", "display: table-row;");
+  let row = [
+    window.app.resultIndices.slice(-1)[0],
+    document.querySelector("#lr").valueAsNumber,
+    document.querySelector("#lm").valueAsNumber,
+    document.querySelector("#cr").valueAsNumber,
+    document.querySelector("#nps").valueAsNumber,
+    document.querySelector("#t12").valueAsNumber,
+    document.querySelector(`#vbus${opIndex}`).valueAsNumber,
+    document.querySelector(`#vload${opIndex}`).valueAsNumber,
+    document.querySelector(`#iload${opIndex}`).valueAsNumber,
+    document.querySelector(`#pload${opIndex}`).valueAsNumber,
+  ];
+
+  let newRow = document.createElement("tr");
+  let header = document.querySelector("#result-table-header");
+  let i = 0;
+  for (let x of row) {
+    let newCell = document.createElement("td");
+    newCell.innerHTML = x.toLocaleString(undefined, {
+      maximumFractionDigits: 2,
+    });
+    if (header.cells[i].className === "table-header-parameter") {
+      newCell.classList.add("table-parameter");
+    } else if (header.cells[i].className === "table-header-operatingpoint") {
+      newCell.classList.add("table-operatingpoint");
+    } else {
+      newCell.classList.add("table-performance");
+    }
+    newRow.append(newCell);
+    i++;
+  }
+
+  let newCell = document.createElement("td");
+  newCell.classList.add("result-error-message");
+  newCell.setAttribute("colspan", "11");
+  newCell.innerText = `${errorValue}`;
+  newRow.append(newCell);
+
+  newRow.onclick = tableClicked;
+  document.querySelector("#result-table-rows").appendChild(newRow);
+}
+
+function refreshTable() {
+  let table = document.querySelector("#result-table-rows");
+  for (let row = 0; row < table.rows.length; ++row) {
+    let resultId = parseInt(table.rows[row].cells[0].innerText);
+    let caption = document.querySelector(`#fig${resultId} p`);
+    if (window.app.selectedRows.indexOf(row) === -1) {
+      for (let col = 0; col < table.rows[row].cells.length; ++col) {
+        table.rows[row].cells[col].classList.remove("result-selected");
+        caption.classList.remove("result-selected");
+      }
+    } else {
+      for (let col = 0; col < table.rows[row].cells.length; ++col) {
+        table.rows[row].cells[col].classList.add("result-selected");
+        caption.classList.add("result-selected");
+      }
+    }
+  }
+}
+
+function tableClicked() {
+  let selected = this.rowIndex - 1;
+  let j = window.app.selectedRows.indexOf(selected);
+  if (j === -1) {
+    window.app.selectedRows[window.app.selectedRows.length] = selected;
+  } else {
+    window.app.selectedRows.splice(j, 1);
+  }
+  refreshTable();
+}
+
+function resultInverseClicked() {
+  let table = document.querySelector("#result-table-rows");
+  for (let i = 0; i < table.rows.length; ++i) {
+    let j = window.app.selectedRows.indexOf(i);
+    if (j === -1) {
+      window.app.selectedRows.push(i);
+    } else {
+      window.app.selectedRows.splice(j, 1);
+    }
+  }
+  refreshTable();
+}
+
+function resultRemoveClicked() {
+  window.app.selectedRows.sort((a, b) => a - b);
+  let table = document.querySelector("#result-table-rows");
+  for (let i = window.app.selectedRows.length - 1; i >= 0; --i) {
+    let idToRemove = parseInt(table.rows[window.app.selectedRows[i]].cells[0].textContent);
+    let figToRemove = document.querySelector(`#fig${idToRemove}`);
+    figToRemove.parentNode.removeChild(figToRemove);
+    table.deleteRow(window.app.selectedRows[i]);
+  }
+  if (table.rows.length === 0) {
+    document.querySelector("#result-table-header").setAttribute("style", "display: none;");
+    for (let el of document.querySelectorAll(".result")) {
+      el.setAttribute("style", "display: none;");
+    }
+    for (let resultAction of document.querySelectorAll(".result-action")) {
+      resultAction.setAttribute("style", "display: none;");
+    }
+    for (let resultAction of document.querySelectorAll(".result")) {
+      resultAction.setAttribute("style", "display: none;");
+    }
+    resetExplanation();
+  }
+  window.app.selectedRows = [];
 }

@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./button.css" />
+    <!-- <link
+      rel="stylesheet"
+      href="https://cdn.bootcdn.net/ajax/libs/material-components-web/7.0.0-canary.ff4bc632a.0/material-components-web.min.css"
+    /> -->
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({
         extensions: ["tex2jax.js"],
@@ -27,144 +32,232 @@
     <title>AHBLLC Designer</title>
   </head>
   <body>
-    <h1>Design Input</h1>
-    <label for="lr">Resonant inductance</label>
-    <input type="number" class="number" name="lr" id="lr" placeholder="Lr" value="30" min="10"/>
-    <label for="lr" class="unit">μH</label>
-    <br />
-    <label for="lm">Magnetizing inductance</label>
-    <input type="number" class="number" name="lm" id="lm" placeholder="Lm" value="1000" step="10" min="100"/>
-    <label for="lm" class="unit">μH</label>
-    <br />
-    <label for="cr">Resonant capacitance</label>
-    <input type="number" class="number" name="cr" id="cr" placeholder="Cr" value="68" min="1"/>
-    <label for="cr" class="unit">nF</label>
-    <br />
-    <label for="nps">Primary : secondary turns ratio</label>
-    <input type="number" class="number" name="nps" id="nps" placeholder="nps" value="5" step="0.1" min="0.1"/>
-    <label for="nps" class="unit"></label>
-    <br />
-    <label for="t12">Time delay after didoe off</label>
-    <input type="number" class="number" name="t12" id="t12" placeholder="t12" value="800" step="100" min="1"/>
-    <label for="t12" class="unit">ns</label>
-    <br />
+    <div class="container">
+      <!---------------------------------------------------------------------->
+      <h1>Design Input</h1>
+      <!---------------------------------------------------------------------->
+      <div class="design-entry">
+        <label for="lr" class="prompt">Resonant inductance</label>
+        <input type="number" class="number" name="lr" id="lr" placeholder="Lr" value="30" min="10" />
+        <label for="lr" class="unit">μH</label>
+        <label for="lm" class="prompt">Magnetizing inductance</label>
+        <input type="number" class="number" name="lm" id="lm" placeholder="Lm" value="1000" step="10" min="100" />
+        <label for="lm" class="unit">μH</label>
+        <label for="cr" class="prompt">Resonant capacitance</label>
+        <input type="number" class="number" name="cr" id="cr" placeholder="Cr" value="68" min="1" />
+        <label for="cr" class="unit">nF</label>
+        <label for="nps" class="prompt">Primary : secondary turns ratio</label>
+        <input type="number" class="number" name="nps" id="nps" placeholder="nps" value="5" step="0.1" min="0.1" />
+        <label for="nps" class="unit"></label>
+        <label for="t12" class="prompt">Time delay after didoe off</label>
+        <input type="number" class="number" name="t12" id="t12" placeholder="t12" value="800" step="100" min="1" />
+        <label for="t12" class="unit">ns</label>
+      </div>
 
-    <h1>Operating Point</h1>
-    <label for="vbus">DC bus voltage</label>
-    <input type="number" class="number" name="vbus" id="vbus" placeholder="Vbus" value="410" min="380"/>
-    <label for="vbus" class="unit">V</label>
-    <br />
-    <label for="vload">Load voltage</label>
-    <input type="number" class="number" name="vload" id="vload" placeholder="Vload" value="40" min="1"/>
-    <label for="vload" class="unit">V</label>
-    <br />
-    <label for="iload">Load current</label>
-    <input
-      type="number"
-      class="number"
-      name="iload"
-      id="iload"
-      placeholder="Iload"
-      value="1"
-      step="0.1"
-      min="0"
-      max="10"
-    />
-    <label for="iload" class="unit">A</label>
-    <br />
-    <label for="pload">Load power</label>
-    <input type="number" class="number" name="pload" id="pload" placeholder="Pload" value="40" />
-    <label for="pload" class="unit">W</label>
-    <br />
-    <div class="action" id="action-findss">Find Steady-State</div>
-    <div class="action" id="action-addop">Add Operating Point</div>
+      <!---------------------------------------------------------------------->
+      <h1>Operating Points</h1>
+      <!---------------------------------------------------------------------->
+      <div id="operating-points-container">
+        <div class="op">
+          <div class="design-entry">
+            <button type="button" class="btn operating-point-0" id="action-addremoveop">
+              <span>+</span>
+            </button>
+            <label for="vbus" class="prompt">DC bus voltage</label>
+            <input
+              type="number"
+              class="number operating-point-0"
+              name="vbus"
+              id="vbus"
+              placeholder="Vbus"
+              value="410"
+              min="380"
+            />
+            <label for="vbus" class="unit operating-point-0">V</label>
+            <label for="vload" class="prompt">Load voltage</label>
+            <input
+              type="number"
+              class="number operating-point-0"
+              name="vload"
+              id="vload"
+              placeholder="Vload"
+              value="40"
+              min="1"
+            />
+            <label for="vload" class="unit operating-point-0">V</label>
+            <label for="iload" class="prompt">Load current</label>
+            <input
+              type="number"
+              class="number operating-point-0"
+              name="iload"
+              id="iload"
+              placeholder="Iload"
+              value="1"
+              step="0.1"
+              min="0"
+              max="10"
+            />
+            <label for="iload" class="unit operating-point-0">A</label>
+            <label for="pload" class="prompt">Load power</label>
+            <input
+              type="number"
+              class="number operating-point-0"
+              name="pload"
+              id="pload"
+              placeholder="Pload"
+              value="40"
+            />
+            <label for="pload" class="unit operating-point-0">W</label>
+          </div>
+        </div>
+      </div>
+      <template id="operating-point-template">
+        <div class="op">
+          <div class="design-entry-no-prompt">
+            <button type="button" class="btn" id="action-addremoveop">
+              <span>-</span>
+            </button>
+            <input type="number" class="number decol1" name="vbus" id="vbus" placeholder="Vbus" value="410" min="380" />
+            <label for="vbus" class="unit">V</label>
+            <input type="number" class="number" name="vload" id="vload" placeholder="Vload" value="40" min="1" />
+            <label for="vload" class="unit">V</label>
+            <input
+              type="number"
+              class="number"
+              name="iload"
+              id="iload"
+              placeholder="Iload"
+              value="1"
+              step="0.1"
+              min="0"
+              max="10"
+            />
+            <label for="iload" class="unit">A</label>
+            <input type="number" class="number" name="pload" id="pload" placeholder="Pload" value="40" />
+            <label for="pload" class="unit">W</label>
+          </div>
+        </div>
+      </template>
 
-    <h1>Result</h1>
-    <p class="result" id="result-explanation"></p>
-    <div class="result-action" id="result-inverse" style="visibility: hidden;">Inverse Selection</div>
-    <div class="result-action" id="result-remove" style="visibility: hidden;">Remove Selected</div>
-    <table id="measurementTable">
-      <tr id="header" style="visibility: hidden;">
-        <th class="table-header-parameter" data-tooltip="Resonant inductance $L_{\rm r}$, in micro henries.">
-          L<sub>r</sub>
-        </th>
-        <th class="table-header-parameter" data-tooltip="Magnetizing inductance $L_{\rm m}$, in micro henries.">
-          L<sub>m</sub>
-        </th>
-        <th class="table-header-parameter" data-tooltip="Resonant capacitance $C_{\rm r}$, in nano farads.">
-          C<sub>r</sub>
-        </th>
-        <th class="table-header-parameter" data-tooltip="Effective turns ratio in cantilever model $n_{\rm ps}$.">
-          n<sub>ps</sub>
-        </th>
-        <th
-          class="table-header-parameter"
-          data-tooltip="Time delay between turning off of the diode and the low-side MOS $t_{12}$, in nano seconds."
-        >
-          t<sub>12</sub>
-        </th>
-        <th class="table-header-operatingpoint" data-tooltip="DC bus voltage $V_{\rm bus}$, in volts.">
-          V<sub>bus</sub>
-        </th>
-        <th class="table-header-operatingpoint" data-tooltip="Load (LED) voltage $V_{\rm load}$, in volts.">
-          V<sub>load</sub>
-        </th>
-        <th class="table-header-operatingpoint" data-tooltip="Load (LED) current $I_{\rm load}$ in amperes.">
-          I<sub>load</sub>
-        </th>
-        <th class="table-header-operatingpoint" data-tooltip="Load (LED) power $P_{\rm load}$ in watts.">
-          P<sub>load</sub>
-        </th>
-        <th class="table-header-performance" data-tooltip="Switching frequency $f_{\rm sw}$, in kilo hertz.">
-          f<sub>sw</sub>
-        </th>
-        <th
-          class="table-header-performance"
-          data-tooltip="Duty ratio of the high-side MOS: $\delta_{\rm hs} \equiv t_{\rm 23} f_{\rm sw}$, in percentage."
-        >
-          δ<sub>hs</sub>
-        </th>
-        <th
-          class="table-header-performance"
-          data-tooltip="Duty ratio of the diode in the low-side MOS on phase: $\displaystyle \delta_{\rm dio} \equiv \frac {t_{01}} {t_{01} + t_{12} + t_{30}} $, in percentage."
-        >
-          δ<sub>dio</sub>
-        </th>
-        <th class="table-header-performance" data-tooltip="RMS current in the primary winding, in amperes.">
-          I<sub>rms,pri</sub>
-        </th>
-        <th class="table-header-performance" data-tooltip="Average voltage on the resonant capacitor, in volts.">
-          V<sub>mean,res</sub>
-        </th>
-        <th class="table-header-performance" data-tooltip="RMS AC voltage on the resonant capacitor, in volts.">
-          V<sub>ac,res</sub>
-        </th>
-        <th class="table-header-performance" data-tooltip="RMS voltage on the primary winding, in volts.">
-          V<sub>rms,pri</sub>
-        </th>
-        <th class="table-header-performance" data-tooltip="RMS current in the output diode, in amperes.">
-          I<sub>rms,out</sub>
-        </th>
-        <th class="table-header-performance" data-tooltip="Peak current in the output diode, in amperes.">
-          I<sub>ppk,out</sub>
-        </th>
-        <th
-          class="table-header-performance"
-          data-tooltip="Magnetic flux linked to the primary winding: $\displaystyle \Psi_{\rm pri} \equiv \int_0^{T_{\rm sw}} |v_{\rm pri}(t)| \,dt$, in milli webbers."
-        >
-          Ψ<sub>pri</sub>
-        </th>
-        <th
-          class="table-header-performance"
-          data-tooltip="Electric charge for commutating from low to high: $\displaystyle Q_{\rm lh} \equiv \int_\text{low side turns off}^\text{current crosses 0} i(t) \,dt$, in nano coulumbs."
-        >
-          Q<sub>lh</sub>
-        </th>
-      </tr>
-      <tbody id="rows"></tbody>
-    </table>
+      <h3>Find Steady-State</h3>
+      <button type="button" class="btn" id="action-findss">
+        <span>For the First Operating Point</span>
+      </button>
+      <button type="button" class="btn" id="action-findssa">
+        <span>For All Operating Points</span>
+      </button>
 
-    <h1>Waveform</h1>
-    <div id="chart"></div>
+      <!---------------------------------------------------------------------->
+      <h1>Results</h1>
+      <!---------------------------------------------------------------------->
+      <p class="result result-explanation-default" id="result-explanation" style="display: none;">
+        Click head titles for more information.
+      </p>
+      <table id="result-table">
+        <tr id="result-table-header" style="display: none;">
+          <th data-tooltip="Serial number of evaluation.">
+            #
+          </th>
+          <th class="table-header-parameter" data-tooltip="Resonant inductance $L_{\rm r}$, in micro henries.">
+            L<sub>r</sub>
+          </th>
+          <th class="table-header-parameter" data-tooltip="Magnetizing inductance $L_{\rm m}$, in micro henries.">
+            L<sub>m</sub>
+          </th>
+          <th class="table-header-parameter" data-tooltip="Resonant capacitance $C_{\rm r}$, in nano farads.">
+            C<sub>r</sub>
+          </th>
+          <th class="table-header-parameter" data-tooltip="Effective turns ratio in cantilever model $n_{\rm ps}$.">
+            n<sub>ps</sub>
+          </th>
+          <th
+            class="table-header-parameter"
+            data-tooltip="Time delay between turning off of the diode and the low-side MOS,
+            $t_{12} \equiv t_2 - t_1$,
+            in nano seconds."
+          >
+            t<sub>12</sub>
+          </th>
+          <th class="table-header-operatingpoint" data-tooltip="DC bus voltage $V_{\rm bus}$, in volts.">
+            V<sub>bus</sub>
+          </th>
+          <th class="table-header-operatingpoint" data-tooltip="Load (LED) voltage $V_{\rm load}$, in volts.">
+            V<sub>load</sub>
+          </th>
+          <th class="table-header-operatingpoint" data-tooltip="Load (LED) current $I_{\rm load}$ in amperes.">
+            I<sub>load</sub>
+          </th>
+          <th class="table-header-operatingpoint" data-tooltip="Load (LED) power $P_{\rm load}$ in watts.">
+            P<sub>load</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="Switching frequency $f_{\rm sw}$, in kilo hertz.">
+            f<sub>sw</sub>
+          </th>
+          <th
+            class="table-header-performance"
+            data-tooltip="Duty ratio of the high-side MOS:
+            $\delta_{\rm hs} \equiv t_{\rm 23} f_{\rm sw}$, in percentage."
+          >
+            δ<sub>hs</sub>
+          </th>
+          <th
+            class="table-header-performance"
+            data-tooltip="Duty ratio of the diode in the low-side MOS on phase:
+            $\displaystyle \delta_{\rm dio} \equiv \frac {t_{01}} {t_{01} + t_{12} + t_{30}} $,
+            in percentage."
+          >
+            δ<sub>dio</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="RMS current in the primary winding, in amperes.">
+            I<sub>rms,pri</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="Average voltage on the resonant capacitor, in volts.">
+            V<sub>mean,res</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="RMS AC voltage on the resonant capacitor, in volts.">
+            V<sub>ac,res</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="RMS voltage on the primary winding, in volts.">
+            V<sub>rms,pri</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="RMS current in the output diode, in amperes.">
+            I<sub>rms,out</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="Peak current in the output diode, in amperes.">
+            I<sub>ppk,out</sub>
+          </th>
+          <th
+            class="table-header-performance"
+            data-tooltip="Magnetic flux linked to the primary winding:
+            $\displaystyle \Psi_{\rm pri} \equiv \int_0^{T_{\rm sw}} |v_{\rm pri}(t)| \,dt$,
+            in milli webbers."
+          >
+            Ψ<sub>pri</sub>
+          </th>
+          <th
+            class="table-header-performance"
+            data-tooltip="Electric charge for commutating from low to high:
+            $\displaystyle Q_{\rm lh} \equiv \int_\text{t2}^\text{t20} i(t) \,dt$,
+            where $t_2$ is the moment when the low-side device switches off,
+            and $t_{20}$ is the moment when the resonant current crosses 0.
+            Result is in nano coulumbs."
+          >
+            Q<sub>lh</sub>
+          </th>
+        </tr>
+        <tbody id="result-table-rows"></tbody>
+      </table>
+      <button type="button" class="btn result-action" id="result-inverse" style="display: none;">
+        <span>Inverse Selection</span>
+      </button>
+      <button type="button" class="btn result-action" id="result-remove" style="display: none;">
+        <span>Remove Selected</span>
+      </button>
+
+      <!---------------------------------------------------------------------->
+      <h1>Waveforms</h1>
+      <!---------------------------------------------------------------------->
+      <div class="waveform" id="chart"></div>
+    </div>
   </body>
 </html>
