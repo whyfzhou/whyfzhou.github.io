@@ -1,3 +1,11 @@
+function mod(a, b) {
+  let c = a % b;
+  if ((c < 0 && 0 < b) || (c > 0 && 0 > b)) {
+    c += b;
+  }
+  return c;
+}
+
 function ridder(eq, x0, y0, x1, y1, xtol, ytol, maxIter) {
   let ans = Number.NaN;
 
@@ -129,7 +137,7 @@ function calc_t1(i0, lr, lm, cr, vout) {
   let r = Math.hypot(v0 - vout, i0 * z);
   let phi = Math.atan2(v0 - vout, i0 * z);
 
-  let tb = ((2 * Math.PI - phi) % (2 * Math.PI)) / w;
+  let tb = mod(2 * Math.PI - phi, 2 * Math.PI) / w;
   let ta = tb / 2;
 
   while ((r * Math.cos(w * ta + phi)) / z > i0 - (vout * ta) / lm && ta > 1e-9) {
@@ -220,10 +228,14 @@ function calc_pout_i0(i0, lr, lm, cr, vbus, vout, t12) {
 function steady_state_pout(pout, lr, lm, cr, vbus, vout, t12) {
   const eq_max_i0 = (i) => steady_state_i0(i, lr, lm, cr, vbus, vout, t12).slice(-1)[0].dt;
   let i0_max = vbus / (lr / cr) ** 0.5;
-  while (eq_max_i0(i0_max) > 0) {
-    i0_max *= 2;
+  if (((lr + lm) * cr) ** -0.5 * t12 >= Math.PI) {
+    i0_max *= 100;
+  } else {
+    while (eq_max_i0(i0_max) > 0) {
+      i0_max *= 2;
+    }
+    i0_max = nsolve(eq_max_i0, 1e-6, i0_max, brent);
   }
-  i0_max = nsolve(eq_max_i0, 1e-6, i0_max, brent);
 
   const eq = (i) => calc_pout_i0(i, lr, lm, cr, vbus, vout, t12) - pout;
   let i0 = nsolve(eq, 1e-6, i0_max, brent);
@@ -233,6 +245,23 @@ function steady_state_pout(pout, lr, lm, cr, vbus, vout, t12) {
   }
 
   return steady_state_i0(i0, lr, lm, cr, vbus, vout, t12);
+}
+
+function multiple_diode_conduction(ss) {
+  let r12 = ss[1].r;
+  let v0 = ss[0].v0;
+  if (r12 > v0) {
+    let a = ss[1].phi;
+    let iz = (r12 ** 2 - v0 ** 2) ** 0.5;
+    let b = Math.atan2(v0, iz);
+    let w1 = ss[1].w;
+    let t = mod(b - a, 2 * Math.PI) / w1;
+    let t12 = ss[1].dt;
+    if (t12 >= t) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /*

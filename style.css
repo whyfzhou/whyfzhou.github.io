@@ -34,6 +34,18 @@ div.design-entry {
   /* grid-auto-rows: minmax(100px, auto); */
   /* width: 30%; */
 }
+
+div.design-entry-multiple-columns {
+  display: grid;
+  grid-template-columns: 15em repeat(3, 2em 5em 2em);
+  grid-gap: 3px;
+  /* grid-auto-rows: minmax(100px, auto); */
+  /* width: 30%; */
+}
+input.in-multiple-columns {
+  grid-column: 3;
+}
+
 /* --------------------------------- */
 div.op {
   display: inline-block;
@@ -50,6 +62,30 @@ div.design-entry-no-prompt {
 label.prompt {
   grid-column: 1;
 }
+label.sub-prompt {
+  text-align: right;
+  font-style: italic;
+  color: #7b9e89;
+}
+label.sub-prompt-1 {
+  text-align: right;
+  font-style: normal;
+  color: lightgray;
+  background-color: red;
+}
+label.sub-prompt-2 {
+  text-align: right;
+  font-style: normal;
+  color: lightgray;
+  background-color: green;
+}
+label.sub-prompt-3 {
+  text-align: right;
+  font-style: normal;
+  color: lightgray;
+  background-color: blue;
+}
+
 .operating-point-0 {
   grid-column: 2;
 }
@@ -136,9 +172,19 @@ div.waveform {
   grid-gap: 3px;
 }
 
+.axis-label {
+  text-align: center;
+  font-size: smaller;
+  color: #666;
+}
+
 /* --------------------------------- */
 
 .result-error-message {
   background-color: darkred;
   color: yellow;
+}
+
+.result-inaccurate {
+  color: orange;
 }

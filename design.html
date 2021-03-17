@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./button.css" />
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+          displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+          processEscapes: true
+        },
+      });
+    </script>
+    <!-- <script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.min.js"></script> -->
+    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/mathjax/2.7.5/MathJax.js"></script> -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/mathjax/2.7.7/MathJax.js"></script>
+    <script src="./3rdparty/d3.js"></script>
+    <script src="./utils.js"></script>
+    <script src="./plot.js"></script>
+    <script src="./postprocess.js"></script>
+    <script src="./ahbllc.js"></script>
+    <script src="./design.js"></script>
+    <title>AHBLLC Designer</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Operating Point</h1>
+      <div class="design-entry-multiple-columns">
+        <label for="vbus" class="prompt">DC bus voltage</label>
+        <input
+          type="number"
+          class="number in-multiple-columns"
+          name="vbus"
+          id="vbus"
+          placeholder="Vbus"
+          value="410"
+          min="380"
+        />
+        <label for="vbus" class="unit">V</label>
+        <label for="vload" class="prompt">Load voltage</label>
+        <input
+          type="number"
+          class="number in-multiple-columns"
+          name="vload"
+          id="vload"
+          placeholder="Vload"
+          value="40"
+          min="1"
+        />
+        <label for="vload" class="unit">V</label>
+        <label for="pload" class="prompt">Load power</label>
+        <input
+          type="number"
+          class="number in-multiple-columns"
+          name="pload"
+          id="pload"
+          placeholder="Pload"
+          value="40"
+        />
+        <label for="pload" class="unit">W</label>
+      </div>
+
+      <h1>Design Input</h1>
+      <div class="design-entry-multiple-columns">
+        <label for="t12" class="prompt">Time delay after didoe off</label>
+        <input
+          type="number"
+          class="number in-multiple-columns"
+          name="t12"
+          id="t12"
+          placeholder="t12"
+          value="1500"
+          step="100"
+          min="1"
+        />
+        <label for="t12" class="unit">ns</label>
+        <label for="nps" class="prompt">Primary : secondary turns ratio</label>
+        <input
+          type="number"
+          class="number in-multiple-columns"
+          name="nps"
+          id="nps"
+          placeholder="nps"
+          value="4"
+          step="0.1"
+          min="0.1"
+        />
+        <label for="nps" class="unit"></label>
+        <label for="cr" class="prompt">Resonant capacitance</label>
+        <input type="number" class="number in-multiple-columns" name="cr" id="cr" placeholder="Cr" value="47" min="1" />
+        <label for="cr" class="unit">nF</label>
+
+        <label for="lrmin" class="prompt">Resonant inductance</label>
+        <label for="lrmin" class="sub-prompt">from</label>
+        <input
+          type="number"
+          class="number in-multiple-columns"
+          name="lrmin"
+          id="lrmin"
+          placeholder="Lr,min"
+          value="20"
+          min="10"
+        />
+        <label for="lrmin" class="unit">μH</label>
+        <label for="lrmax" class="sub-prompt">to</label>
+        <input type="number" class="number" name="lrmax" id="lrmax" placeholder="Lr,max" value="100" min="10" />
+        <label for="lrmax" class="unit">μH</label>
+
+        <label for="lpri1" class="prompt">Primary side self inductance</label>
+        <label for="lpri1" class="sub-prompt-1">1)</label>
+        <input
+          type="number"
+          class="number in-multiple-columns"
+          name="lpri1"
+          id="lpri1"
+          placeholder="Lpri"
+          value="700"
+          step="10"
+          min="100"
+        />
+        <label for="lpri1" class="unit">μH</label>
+        <label for="lpri2" class="sub-prompt-2">2)</label>
+        <input
+          type="number"
+          class="number"
+          name="lpri2"
+          id="lpri2"
+          placeholder="Lpri"
+          value="1000"
+          step="10"
+          min="100"
+        />
+        <label for="lpri2" class="unit">μH</label>
+        <label for="lpri3" class="sub-prompt-3">3)</label>
+        <input
+          type="number"
+          class="number"
+          name="lpri3"
+          id="lpri3"
+          placeholder="Lpri"
+          value="1250"
+          step="10"
+          min="100"
+        />
+        <label for="lpri3" class="unit">μH</label>
+      </div>
+
+      <h3>Analyze</h3>
+      <button type="button" class="btn" id="action-analyze">
+        <span>Run</span>
+      </button>
+
+      <h1>Charts</h1>
+      <div class="waveform" id="chart"></div>
+    </div>
+  </body>
+</html>
