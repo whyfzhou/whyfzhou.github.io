@@ -1,3 +1,5 @@
+# The reference directory contains the Python code for fast prototyping
+.ref/
 
 # Created by https://www.gitignore.io/api/node,python,virtualenv,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=node,python,virtualenv,visualstudiocode
