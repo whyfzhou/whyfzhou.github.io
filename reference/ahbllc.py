@@ -3,6 +3,13 @@ from scipy.optimize import brentq as nsolve
 from plothelper import fmt
 
 
+MINIMUM_TIME = 1e-9
+MINIMUM_VOLTAGE = 1e-5
+MINIMUM_CURRENT = 1e-7
+MAXIMUM_COMMUTATION_TIME = 600e-9
+MINIMUM_HIGH_SIDE_ON_TIME = 100e-9
+
+
 class AHBLLC:
     def __init__(self, lr, lm, cr, vbus, vout, chb=1e-12):
         self.lr = lr
@@ -114,6 +121,7 @@ class State:
         self.km = kwargs.get('km', 0)
 
     def __getitem__(self, key: str):
+        # for backward compatibility
         return self.__dict__.get(key, 0)
 
 
@@ -124,7 +132,7 @@ def state_l1(i0, v0, vhb0, im0, ckt, con):
 
     Exit criteria: resonant current == magnetizing current (solve the Kepler's Equation)
     """
-    del vhb0, con
+    del vhb0, con  # vhb == 0
 
     chb = math.inf
     cr = ckt.cr
@@ -145,11 +153,9 @@ def state_l1(i0, v0, vhb0, im0, ckt, con):
     # im = im0 - km * t
 
     ta = tb = (-phi % (2 * math.pi)) / w
-    # ta = tb / 2
-    # ta = tb = (im0 + r / z) / km
-    while r * math.cos(w * ta + phi) / z > im0 - km * ta and ta > 1e-9:
+    while r * math.cos(w * ta + phi) / z > im0 - km * ta and ta > MINIMUM_TIME:
         ta /= 2
-    if ta > 1e-9:
+    if ta > MINIMUM_TIME:
         dt = nsolve(lambda t: im0 - km * t - r * math.cos(w * t + phi) / z, ta, tb)
     else:
         dt = ta
@@ -173,7 +179,7 @@ def state_l0(i0, v0, vhb0, im0, ckt, con):
       (1) resonant voltage high enough to turn on the diode --> l1
       (2) delay timeout --> c0
     """
-    del vhb0, im0
+    del vhb0, im0  # vhb == 0, im == i
     t12 = con
 
     chb = math.inf
@@ -194,8 +200,6 @@ def state_l0(i0, v0, vhb0, im0, ckt, con):
     # im = i
 
     v_diode_on = ckt.vout / ckt.lm * (ckt.lr + ckt.lm)
-    # solve dt in v_diode_on == r * math.sin(w * dt + phi) + vg, or
-    # solve i in (i * z)**2 + (v_diode_on - vg)**2 == r**2, and let dt_diode_on = (math.atan2(v_diode_on - vg, i * z) - phi) / w
     if -r <= v_diode_on - vcen <= r:
         dt_diode_on = min((math.asin((v_diode_on - vcen) / r) - phi) % (2 * math.pi),
                           (math.pi - math.asin((v_diode_on - vcen) / r) - phi) % (2 * math.pi)) / w
@@ -203,26 +207,16 @@ def state_l0(i0, v0, vhb0, im0, ckt, con):
         dt_diode_on = math.inf
 
     i_t12 = r * math.cos(w * t12 + phi) / z
-    t_i_to_0 = ((math.pi / 2 - phi) % (2 * math.pi)) / w
-    if dt_diode_on < t12 or i_t12 > 0 and dt_diode_on < t_i_to_0:
+    dt_izc = ((math.pi / 2 - phi) % (2 * math.pi)) / w
+    if dt_diode_on < t12 or i_t12 > 0 and dt_diode_on < dt_izc:
         dt = dt_diode_on
         next_state = state_l1
-    elif i_t12 <= 0:  # i <= 0 at t12
+    elif i_t12 <= 0:
         dt = t12
         next_state = state_c0
     else:
-        dt = t_i_to_0
+        dt = dt_izc
         next_state = state_c0
-
-    # if dt_diode_on < t12:  # diode turns on before t12 timeout
-    #     dt = dt_diode_on
-    #     next_state = state_l1
-    # elif r * math.cos(w * t12 + phi) / z <= 0:  # i <= 0 at t12
-    #     dt = t12
-    #     next_state = state_c0
-    # else:  # i > 0 at t12, postpone t12 to avoid capacitive mode
-    #     dt = ((math.pi / 2 - phi) % (2 * math.pi)) / w
-    #     next_state = state_c0
 
     i1 = r * math.cos(w * dt + phi) / z
     v1 = r * math.sin(w * dt + phi) + vcen
@@ -267,10 +261,11 @@ def state_h0(i0, v0, vhb0, im0, ckt, con):
     if -r <= voff - vcen <= r:
         i1 = (r**2 - (voff - vcen)**2)**.5 / z
         v1 = voff
-    else:
+    else:  # CAUTION: switching off the high-side at maximum current
         i1 = 0
         v1 = vcen + r
     dt = (math.atan2(v1 - vcen, i1 * z) - phi) / w
+
     v_diode_on = ckt.vout / ckt.lm * (ckt.lr + ckt.lm)
     if v1 > v_diode_on:
         next_state = state_c1
@@ -296,7 +291,7 @@ def state_c0(i0, v0, vhb0, im0, ckt, con):
       (3) magnetizing inductor voltage high enough to turn on the diode --> c1
           only possible in high-side to low-side commutation
     """
-    del im0, con
+    del im0, con  # im == i
 
     chb = ckt.chb
     cr = ckt.cr
@@ -309,49 +304,55 @@ def state_c0(i0, v0, vhb0, im0, ckt, con):
     vcap0 = v0 - vhb0
     r = math.hypot(vcap0 - vcen, i0 * z)
     phi = math.atan2(vcap0 - vcen, i0 * z)
-    # i(t) == r * cos(w * t + phi) / z, resonant current
-    #   i(0) == i0 <= 0, guaranteed by previous state
+    # i(t) = r * cos(w * t + phi) / z, resonant current
+    #   i(0) = i0 <= 0, guaranteed by previous state
     # vcap(t) = r * sin(w * t + phi) + vcen, voltage across two capacitors
-    # v(t) == r * sin(w * t + phi) / (1 + cr / chb) +
-    #         v0 / (1 + chb / cr) +
-    #         (vhb0 + vout) / (1 + cr / chb)
-    # vhb(t) == -r * sin(w * t + phi) / (1 + chb / cr) -
-    #           (vout - v0) / (1 + chb / cr) +
-    #           vhb0 / (1 + cr / chb)
+    # v(t) = r * sin(w * t + phi) / (1 + cr / chb) +
+    #        v0 / (1 + chb / cr) +
+    #        (vhb0 + vout) / (1 + cr / chb)
+    # vhb(t) = -r * sin(w * t + phi) / (1 + chb / cr) -
+    #          (vout - v0) / (1 + chb / cr) +
+    #          vhb0 / (1 + cr / chb)
 
-    if -1e-6 < vhb0 < 1e-6:
-        v = ckt.vbus
+    if -MINIMUM_VOLTAGE < vhb0 < MINIMUM_VOLTAGE:  # low-side turning off
+        # output cannot turn on when low-side is turning off
+        # this is guaranteed by:
+        #   1) low-side turning off only happens in l0, and
+        #   2) when low-side is turned off, the resonant voltage v reduces
+        #      while the half-bridge voltage vhb increases, so that the voltage across
+        #      the magnetizing inductor cannot rise to v_diode_on
+        v = ckt.vbus  # target of resonant voltage v
         v -= -(vout - v0) / (1 + chb / cr) + vhb0 / (1 + cr / chb)
         v *= (1 + chb / cr)
         if -r <= v <= r:
             dt = min((math.asin(v / -r) - phi) % (2 * math.pi),
                      (math.pi - math.asin(v / -r) - phi) % (2 * math.pi)) / w
-        else:
+        else:  # hard-switching, which should be avoided but is still allowed
             dt = (-math.pi / 2 - phi) % (2 * math.pi) / w
         next_state = state_h0
-    else:
-        v = 0
+    else:  # high-side turning off
+        v = 0  # target of resonant voltage v
         v -= -(vout - v0) / (1 + chb / cr) + vhb0 / (1 + cr / chb)
         v *= (1 + chb / cr)
         if -r <= v <= r:
-            dt1 = min((math.asin(v / -r) - phi) % (2 * math.pi),
-                      (math.pi - math.asin(v / -r) - phi) % (2 * math.pi)) / w
-        else:
-            dt1 = (math.pi / 2 - phi) % (2 * math.pi) / w
+            dtcomm = min((math.asin(v / -r) - phi) % (2 * math.pi),
+                         (math.pi - math.asin(v / -r) - phi) % (2 * math.pi)) / w
+        else:  # hard-switching, which is allowed
+            dtcomm = (math.pi / 2 - phi) % (2 * math.pi) / w
 
         v = ckt.vout / ckt.lm * (ckt.lr + ckt.lm)
         v -= vcen
         if -r <= v <= r:
-            dt2 = min((math.asin(v / r) - phi) % (2 * math.pi),
-                      (math.pi - math.asin(v / r) - phi) % (2 * math.pi)) / w
+            dtdion = min((math.asin(v / r) - phi) % (2 * math.pi),
+                         (math.pi - math.asin(v / r) - phi) % (2 * math.pi)) / w
         else:
-            dt2 = math.inf
+            dtdion = math.inf
 
-        if dt2 < dt1:
-            dt = dt2
+        if dtdion < dtcomm:  # diode turns on before commutation finishes
+            dt = dtdion
             next_state = state_c1
         else:
-            dt = dt1
+            dt = dtcomm
             next_state = state_l0
 
     i1 = r * math.cos(w * dt + phi) / z
@@ -411,30 +412,28 @@ def state_c1(i0, v0, vhb0, im0, ckt, con):
     #           (vout - v0) / (1 + chb / cr) +
     #           vhb0 / (1 + cr / chb)
 
-    v = 0
+    v = 0  # target of the resonant voltage v
     v -= -(vout - v0) / (1 + chb / cr) + vhb0 / (1 + cr / chb)
     v *= (1 + chb / cr)
     if -r <= v <= r:
-        dt1 = min((math.asin(v / -r) - phi) % (2 * math.pi),
-                  (math.pi - math.asin(v / -r) - phi) % (2 * math.pi)) / w
-    else:
-        dt1 = (math.pi / 2 - phi) % (2 * math.pi) / w  # hard-switching, babe~
+        dtcomm = min((math.asin(v / -r) - phi) % (2 * math.pi),
+                     (math.pi - math.asin(v / -r) - phi) % (2 * math.pi)) / w
+    else:  # hard-switching, which is allowed
+        dtcomm = (math.pi / 2 - phi) % (2 * math.pi) / w
 
     ta = tb = (-phi % (2 * math.pi)) / w
-    # ta = tb / 2
-    # ta = tb = (im0 + r / z) / km
-    while r * math.cos(w * ta + phi) / z > im0 - km * ta and ta > 1e-9:
+    while r * math.cos(w * ta + phi) / z > im0 - km * ta and ta > MINIMUM_TIME:
         ta /= 2
-    if ta > 1e-9:
-        dt2 = nsolve(lambda t: im0 - km * t - r * math.cos(w * t + phi) / z, ta, tb)
+    if ta > MINIMUM_TIME:
+        dtdiof = nsolve(lambda t: im0 - km * t - r * math.cos(w * t + phi) / z, ta, tb)
     else:
-        dt2 = ta
+        dtdiof = ta
 
-    if dt2 < dt1:  # diode turns off before vhb reaches 0
-        dt = dt2
+    if dtdiof < dtcomm:  # diode turns off before commutation finishes (vhb reduces to 0), almost impossible
+        dt = dtdiof
         next_state = state_c0
     else:
-        dt = dt1
+        dt = dtcomm
         next_state = state_l1
 
     i1 = r * math.cos(w * dt + phi) / z
@@ -460,11 +459,11 @@ def state_c1(i0, v0, vhb0, im0, ckt, con):
                              vcen=vcen, vout=vout, km=-km) # yapf: disable
 
 
-def _sim1(isf, cond, i0, v0, vhb0, im0, ckt, t12):
-    nsf, s = isf(i0, v0, vhb0, im0, ckt, t12)
+def _sim1(isf, cond, i0, v0, vhb0, im0, ckt, con):
+    nsf, s = isf(i0, v0, vhb0, im0, ckt, con)
     states = [s]
     while cond(nsf):
-        nsf, s = nsf(s.i1, s.v1, s.vhb1, s.im1, ckt, t12)
+        nsf, s = nsf(s.i1, s.v1, s.vhb1, s.im1, ckt, con)
         states.append(s)
     return nsf, states
 
@@ -474,6 +473,8 @@ def sim(i0, ckt, con):
     active = lambda s: s not in {state_c0, state_c1}
 
     def eq_zvon(t, hs_off_fins):
+        # from the end moment of the high-side turning-off state (high- to low-side commutation finishes),
+        # find out what t12 gives ZV-on of the high-side device.
         _, ss = _sim1(isf_ls_on, active, *hs_off_fins, ckt, t)
         ls_on_fins = (ss[-1].i1, ss[-1].v1, ss[-1].vhb1, ss[-1].im1)
         _, ss = _sim1(state_c0, commutating, *ls_on_fins, ckt, t)
@@ -483,61 +484,82 @@ def sim(i0, ckt, con):
         vhbmax = r / (1 + chb/cr) - (vout-v0) / (1 + chb/cr) + vhb0 / (1 + cr/chb)
         return vhbmax - ckt.vbus
 
-    # def eq_vcont(t, hs_off_fins):
-    #     """实际上并不是这么做的，而是用了限制最高频率的方式。"""
-    #     _, ss = sim1(isf_ls_on, active, *hs_off_fins, ckt, t)
+    # def eq_vcont(t, hs_off_fins, ratio_v_ls_on=.95):
+    #     # resonant voltage continuity equation:
+    #     # t should be so long that when we turn off the low-side,
+    #     # v the resonant voltage is at (or below) ratio_v_ls_on * voff
+    #     _, ss = _sim1(isf_ls_on, active, *hs_off_fins, ckt, t)
+    #     v_ls_on_fin = ss[-1].v1
+    #     return v_ls_on_fin - voff * ratio_v_ls_on
+
+    # def eq_vcont(t, hs_off_fins, ratio_v_ls_on=.95):
+    #     # resonant voltage continuity equation:
+    #     # t should be so long that when we turn off the low-side and go into the high-side on state,
+    #     # the minimum value of v, the resonant voltage, is at (or below) ratio_v_ls_on * voff
+    #     # 这样做看起来很理想，但是
+    #     #   1) 无法实现，除非控制器有办法得知 hs_on 状态中 v 的最小值
+    #     #   2) 会改变 sim 返回值 i_fin - i0 随 i0 的单调性，使方程无法可靠求解
+    #     _, ss = _sim1(isf_ls_on, active, *hs_off_fins, ckt, t)
     #     ls_on_fins = (ss[-1].i1, ss[-1].v1, ss[-1].vhb1, ss[-1].im1)
-    #     _, ss = sim1(state_c0, commutating, *ls_on_fins, ckt, t)
-    #     # ls_off_fin_v = ss[-1].v1
-    #     # return ls_off_fin_v - voff*.99  # FIXME: 实际上并不是这么做的
+    #     _, ss = _sim1(state_c0, commutating, *ls_on_fins, ckt, t)
     #     v0 = ss[-1].v1
     #     i0 = ss[-1].i1
     #     z = ((ckt.lr + ckt.lm) / ckt.cr)**.5
     #     vcen = ckt.vbus
     #     r = math.hypot(v0 - vcen, i0 * z)
-    #     # phi = math.atan2(v0 - vcen, i0 * z)
-    #     # v = r * sin(w * t + phi) + vcen
     #     vmin = -r + vcen
-    #     return vmin - voff*.99  # FIXME: incorrect, leading to multiple root in finding i0, 会改变 sim 方程的单调性
+    #     return vmin - voff * ratio_v_ls_on
 
     voff, t12min = con
-    # starting at the turning-off of the high-side device
+    # starting at the turning-off moment of the high-side device
     v0 = voff
     vhb0 = ckt.vbus
     v_diode_on = ckt.vout / ckt.lm * (ckt.lr + ckt.lm)
     isf = state_c1 if v0 - vhb0 >= v_diode_on else state_c0
 
-    nsf, hs_off = _sim1(isf, commutating, i0, v0, vhb0, i0, ckt, t12min)
+    # high-side turning-off phase
+    nsf, hs_off = _sim1(isf, commutating, i0, v0, vhb0, i0, ckt, None)
     hs_off_fins = (hs_off[-1].i1, hs_off[-1].v1, hs_off[-1].vhb1, hs_off[-1].im1)
 
-    isf_ls_on = nsf
+    isf_ls_on = nsf  # remember the initial state of the low-side on phase,
+                     # we may needed repetitively in determine t12 for high-side ZV-on
+    # low-side on phase
     nsf, ls_on = _sim1(isf_ls_on, active, *hs_off_fins, ckt, t12min)
     ls_on_fins = (ls_on[-1].i1, ls_on[-1].v1, ls_on[-1].vhb1, ls_on[-1].im1)
-    t12capm = ls_on[-1].dt
-
-    nsf, ls_off = _sim1(state_c0, commutating, *ls_on_fins, ckt, t12min)
+    t12capm = ls_on[-1].dt  # state_l0 automatically increases t12 and avoids capactive mode
+    # low-side turning-off phase
+    nsf, ls_off = _sim1(state_c0, commutating, *ls_on_fins, ckt, None)
     ls_off_fins = (ls_off[-1].i1, ls_off[-1].v1, ls_off[-1].vhb1, ls_off[-1].im1)
 
+    # correct t12
     t12zvon = 0
-    # t12zvon = t12vcont = 0
-    t12max = (math.pi - ls_on[-1].phi) / ls_on[-1].w
-    if ls_off[-1].vhb1 < ckt.vbus - 1e-6:
-        if eq_zvon(t12max, hs_off_fins) >= 0:
+    t12max = (math.pi - ls_on[-1].phi) / ls_on[-1].w  # the t12 that generates the most negative current before low-side turns off
+    if ls_off[-1].vhb1 < ckt.vbus - MINIMUM_VOLTAGE:  # hard-switching occurs, see if we can avoid it
+        if eq_zvon(t12max, hs_off_fins) >= 0:  # yes, we can
             t12zvon = nsolve(lambda t: eq_zvon(t, hs_off_fins), t12min / 2, t12max)
-        else:
+        else:  # hard-switching we cannot avoid, in conditions, e.g., too much chb
             t12zvon = t12max
+    t12 = max(t12min, t12capm, t12zvon)
+    # t12vcont = 0  # in practice, the switching frequency is limited
     # if ls_off[-1].v1 > voff:
     #     t12vcont = nsolve(lambda t: eq_vcont(t, hs_off_fins), t12min / 2, t12max)
-    # t12 = max(t12min, t12capm, t12zvon, t12vcont)
-    t12 = max(t12min, t12capm, t12zvon)
+    # t12 = max(t12, t12vcont)
 
-    if t12 > t12min:
+    # t12 correction needed
+    if t12 > t12min:  # re-run the low-side on and low- to high-side commutation
         nsf, ls_on = _sim1(isf_ls_on, active, *hs_off_fins, ckt, t12)
         ls_on_fins = (ls_on[-1].i1, ls_on[-1].v1, ls_on[-1].vhb1, ls_on[-1].im1)
-        nsf, ls_off = _sim1(state_c0, commutating, *ls_on_fins, ckt, t12)
+        nsf, ls_off = _sim1(state_c0, commutating, *ls_on_fins, ckt, None)
         ls_off_fins = (ls_off[-1].i1, ls_off[-1].v1, ls_off[-1].vhb1, ls_off[-1].im1)
 
-    if ls_off[-1].v1 > voff:
+    # high-side on phase
+    _, hs_on = _sim1(state_h0, active, *ls_off_fins, ckt, voff)
+    res = hs_on[-1].i1 - i0
+    if hs_on[-1].v1 > voff + MINIMUM_VOLTAGE:
+        dt_ls_off = sum(s.dt for s in ls_off)
+        dt_hs_on = MAXIMUM_COMMUTATION_TIME - dt_ls_off
+        if dt_hs_on < MINIMUM_HIGH_SIDE_ON_TIME:
+            dt_hs_on = MINIMUM_HIGH_SIDE_ON_TIME
         hs_on_v0 = ls_off[-1].v1
         hs_on_i0 = ls_off[-1].i1
         hs_on_z = ((ckt.lr + ckt.lm) / ckt.cr)**.5
@@ -545,22 +567,14 @@ def sim(i0, ckt, con):
         hs_on_vcen = ckt.vbus
         hs_on_r = math.hypot(hs_on_v0 - hs_on_vcen, hs_on_i0 * hs_on_z)
         hs_on_phi = math.atan2(hs_on_v0 - hs_on_vcen, hs_on_i0 * hs_on_z)
-        dtmax = 600e-9
-        dthson = dtmax - sum(s.dt for s in ls_off)
-        if dthson <= 100e-9:
-            dthson = 100e-9
-        hs_on_v1 = hs_on_r * math.sin(hs_on_w * dthson + hs_on_phi) + hs_on_vcen
+        hs_on_v1 = hs_on_r * math.sin(hs_on_w * dt_hs_on + hs_on_phi) + hs_on_vcen
         _, hs_on = _sim1(state_h0, active, *ls_off_fins, ckt, hs_on_v1)
-    else:
-        _, hs_on = _sim1(state_h0, active, *ls_off_fins, ckt, voff)
-    # if hs_on[-1].v1 > voff + 1e-6:
-    #     res = hs_on[-1].v1 - voff
-    # else:
-    #     res = hs_on[-1].i1 - i0
-    # _, hs_on = sim1(state_h0, active, *ls_off_fins, ckt, voff)
-    res = hs_on[-1].i1 - i0
+        # voltage continuity violates if we reach here, which indicates that
+        # the i_fin - i0 function could have multiple zeros, and the solver may fail.
+        # consider changing the res to keep it monotone
+        res = hs_on[-1].i1 - i0
+
     states = hs_off + ls_on + ls_off + hs_on
-    # return hs_on[-1].i1 - i0, t12, states
     return res, t12, states
 
 
