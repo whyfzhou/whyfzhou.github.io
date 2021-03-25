@@ -1,9 +1,6 @@
 import math
-import numpy as np
 from scipy.optimize import brentq as nsolve
-from scipy.interpolate import interp1d
-from plothelper import (fmt, axis_formatter)
-import plothelper
+from plothelper import fmt
 
 
 class AHBLLC:
