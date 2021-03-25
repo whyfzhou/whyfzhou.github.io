@@ -9,14 +9,19 @@ from scipy.optimize import brentq as nsolve
 import matplotlib.pyplot as plt
 
 
-def test():
-    ckt = ahbllc.AHBLLCTrafo(25e-6, 1225e-6, 39e-9, 4.3, 410, 40, chb=500e-12)
+def test1():
+    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
     print(ckt)
-    ss, ev = ahbllc.evaluate_operating_point(.4, ckt)
+    ss, ev = ahbllc.evaluate_operating_point(1, ckt)
     ev.set_circuit(ckt)
     print(ev)
     plothelper.plot(ss, show=True)
 
 
+def test2():
+    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
+    ahbllcapp.evaluate_operating_point_with_tolerance(20, ckt)
+
+
 if __name__ == '__main__':
-    test()
+    test1()

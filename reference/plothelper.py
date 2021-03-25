@@ -3,12 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from matplotlib.ticker import FuncFormatter
-import itertools
-# import asyllcm1
+
 
 plt.rcParams.update({'font.family':'Fira Code'})
 plt.rcParams.update({'pdf.fonttype':42})
 plt.rcParams.update({'ps.fonttype':42})
+
 
 def fmt(x, n=3):
     if x == 0 or x == -0.0 or x == 0.0:

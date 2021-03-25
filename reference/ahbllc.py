@@ -11,41 +11,45 @@ MINIMUM_HIGH_SIDE_ON_TIME = 100e-9
 
 
 class AHBLLC:
-    def __init__(self, lr, lm, cr, vbus, vout, chb=1e-12):
-        self.lr = lr
-        self.lm = lm
-        self.cr = cr
-        self.vbus = vbus
-        self.vout = vout
-        self.chb = chb
+    def __init__(self, **kwargs):
+        self.lr = kwargs.get('lr', 30e-6)
+        self.lm = kwargs.get('lm', 1000e-6)
+        self.cr = kwargs.get('cr', 47e-9)
+        self.vbus = kwargs.get('vbus', 410)
+        self.vout = kwargs.get('vout', 200)
+        self.chb = kwargs.get('chb', 100e-12)
+
+        self.lr_rtol = kwargs.get('lr_rtol', .05)
+        self.lm_rtol = kwargs.get('lm_rtol', .05)
+        self.cr_rtol = kwargs.get('cr_rtol', .05)
+        self.vbus_rtol = kwargs.get('vbus_rtol', .05)
+        self.chb_rtol = kwargs.get('chb_rtol', .05)
 
     def __str__(self):
         s = ''
-        s += f'{" An asymmetrical half-bridge LLC converter ":-^40}\n'
-        s += f'{"Lr":>20} = {fmt(self.lr)}H\n'
-        s += f'{"Lm":>20} = {fmt(self.lm)}H\n'
-        s += f'{"Cr":>20} = {fmt(self.cr)}F\n'
-        s += f'{"Chb":>20} = {fmt(self.chb)}F\n'
-        s += f'{"DC bus voltage":>20} = {fmt(self.vbus)}V\n'
-        s += f'{"Output voltage":>20} = {fmt(self.vout)}V\n'
+        s += f'{" An asymmetrical half-bridge LLC converter ":-^60}\n'
+        s += f'{"Lr":>28} = {fmt(self.lr)}H\n'
+        s += f'{"Lm":>28} = {fmt(self.lm)}H\n'
+        s += f'{"Cr":>28} = {fmt(self.cr)}F\n'
+        s += f'{"Chb":>28} = {fmt(self.chb)}F\n'
+        s += f'{"DC bus voltage":>28} = {fmt(self.vbus)}V\n'
+        s += f'{"Output voltage":>28} = {fmt(self.vout)}V\n'
         return s
 
 
 class AHBLLCTrafo(AHBLLC):
-    def __init__(self, lr, lm, cr, nps, vbus, vload, chb=1e-12):
-        self.lr = lr
-        self.lm = lm
-        self.cr = cr
-        self.nps = nps
-        self.vbus = vbus
-        self.vload = vload
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.vload = kwargs.get('vload', 40)
+        self.nps = kwargs.get('nps', 3.8)
         self.vout = self.nps * self.vload
-        self.chb = chb
+
+        self.nps_rtol = kwargs.get('nps_rtol', .10)
 
     def __str__(self):
         s = super().__str__()
-        s += f'{"nps":>20} = {fmt(self.nps)}\n'
-        s += f'{"Load voltage":>20} = {fmt(self.vload)}V\n'
+        s += f'{"nps":>28} = {fmt(self.nps)}\n'
+        s += f'{"Load voltage":>28} = {fmt(self.vload)}V\n'
         return s
 
 
@@ -77,28 +81,29 @@ class Evaluation:
             s += f'{" Converter operates in steady-state ":-^60}\n'
         else:
             s += f'{" Converter stabilizing... ":-^60}\n'
-        s += f'{"Tsw":>30} = {fmt(self.tsw, 4)}s\n'
-        s += f'{"fsw":>30} = {fmt(1 / self.tsw, 4)}Hz\n'
-        s += f'{"(Corrected) T12":>30} = {fmt(self.t12, 4)}s\n'
-        s += f'{"δhs = T_hs_on / Tsw":>30} ≈ {self.t_hs_on / self.tsw:.1%}\n'
-        s += f'{"δd = T_diode_on / T_ls_on":>30} ≈ {self.t_diode_on / self.tsw:.1%}\n'
-        s += f'{"Irms,pri":>30} = {fmt(self.irms, 3)}A\n'
-        s += f'{"Imax,pri":>30} = {fmt(self.imax, 3)}A\n'
-        s += f'{"Vdc,r":>30} = {fmt(self.vavg, 3)}V\n'
-        s += f'{"Vacrms,r":>30} = {fmt((self.vrms**2 - self.vavg**2)**.5, 3)}V\n'
+        s += f'{"Tsw":>28} = {fmt(self.tsw, 4)}s\n'
+        s += f'{"fsw":>28} = {fmt(1 / self.tsw, 4)}Hz\n'
+        s += f'{"(Corrected) T12":>28} = {fmt(self.t12, 4)}s\n'
+        s += f'{"δhs = T_hs_on / Tsw":>28} ≈ {self.t_hs_on / self.tsw:.1%}\n'
+        s += f'{"δd = T_diode_on / T_ls_on":>28} ≈ {self.t_diode_on / self.tsw:.1%}\n'
+        s += f'{"Irms,pri":>28} = {fmt(self.irms, 3)}A\n'
+        s += f'{"Imax,pri":>28} = {fmt(self.imax, 3)}A\n'
+        s += f'{"Vdc,r":>28} = {fmt(self.vavg, 3)}V\n'
+        s += f'{"Vacrms,r":>28} = {fmt((self.vrms**2 - self.vavg**2)**.5, 3)}V\n'
         if self.ckt is None:
-            s += f'{"Idc,out":>30} = {fmt(self.iout, 3)}A\n'
+            s += f'{"Idc,out":>28} = {fmt(self.iout, 3)}A\n'
         else:
+            s += f'{"Ψ,pri":>28} = {fmt((self.ckt.lr + self.ckt.lm) * self.imax, 3)}Wb\n'
             pout = self.iout * self.ckt.vout
-            s += f'{"Vdc,bus":>30} = {fmt(self.ckt.vbus, 3)}V\n'
-            s += f'{"Pavg,out":>30} = {fmt(pout, 3)}W\n'
+            s += f'{"Vdc,bus":>28} = {fmt(self.ckt.vbus, 3)}V\n'
+            s += f'{"Pavg,out":>28} = {fmt(pout, 3)}W\n'
             if isinstance(self.ckt, AHBLLCTrafo):
                 iload = pout / self.ckt.vload
-                s += f'{"Idc,load":>30} = {fmt(iload, 3)}A\n'
-                s += f'{"Vdc,load":>30} = {fmt(self.ckt.vload, 3)}V\n'
+                s += f'{"Idc,load":>28} = {fmt(iload, 3)}A\n'
+                s += f'{"Vdc,load":>28} = {fmt(self.ckt.vload, 3)}V\n'
             else:
-                s += f'{"Idc,out":>30} = {fmt(self.iout, 3)}V\n'
-                s += f'{"Vdc,out":>30} = {fmt(self.ckt.vout, 3)}V\n'
+                s += f'{"Idc,out":>28} = {fmt(self.iout, 3)}V\n'
+                s += f'{"Vdc,out":>28} = {fmt(self.ckt.vout, 3)}V\n'
         return s
 
 
@@ -624,8 +629,8 @@ def evaluate_switching_period(states):
             t_ls_on += state.dt
         if state.state.startswith('h'):
             t_hs_on += state.dt
-        if state.i1 > imax:
-            imax = state.i1
+        if state.phi <= 0 <= state.w * state.dt + state.phi:
+            imax = j
 
     irms = (i2acc / tsw)**.5
     vavg = vacc / tsw
@@ -676,4 +681,4 @@ def evaluate_operating_point(pout, ckt, t12min=500e-9, fswmax=100e3):
         ss = find_steady_state(voff, ckt, t12min, fswmax)
         return ss, evaluate_switching_period(ss)
     else:
-        return 0, [State()], Evaluation()
+        return [State()], Evaluation()

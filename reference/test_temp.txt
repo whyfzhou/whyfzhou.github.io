@@ -1,0 +1,1664 @@
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 15.83μs
+                         fsw = 63.18kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 70.0%
+   δd = T_diode_on / T_ls_on ≈ 21.7%
+                    Irms,pri = 388mA
+                    Imax,pri = 624mA
+                       Vdc,r = 281V
+                    Vacrms,r = 24.4V
+                       Ψ,pri = 741μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.3W
+                     Idc,out = 65.6mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 13.68μs
+                         fsw = 73.09kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 63.9%
+   δd = T_diode_on / T_ls_on ≈ 24.6%
+                    Irms,pri = 395mA
+                    Imax,pri = 647mA
+                       Vdc,r = 286V
+                    Vacrms,r = 22.0V
+                       Ψ,pri = 768μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 20.8W
+                     Idc,out = 67.2mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 22.73μs
+                         fsw = 44.00kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 80.8%
+   δd = T_diode_on / T_ls_on ≈ 14.5%
+                    Irms,pri = 463mA
+                    Imax,pri = 671mA
+                       Vdc,r = 320V
+                    Vacrms,r = 41.7V
+                       Ψ,pri = 796μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 18.90μs
+                         fsw = 52.90kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 75.7%
+   δd = T_diode_on / T_ls_on ≈ 17.8%
+                    Irms,pri = 462mA
+                    Imax,pri = 721mA
+                       Vdc,r = 333V
+                    Vacrms,r = 34.7V
+                       Ψ,pri = 856μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 22.4W
+                     Idc,out = 59.3mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 15.89μs
+                         fsw = 62.92kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 69.7%
+   δd = T_diode_on / T_ls_on ≈ 21.6%
+                    Irms,pri = 390mA
+                    Imax,pri = 627mA
+                       Vdc,r = 280V
+                    Vacrms,r = 24.7V
+                       Ψ,pri = 744μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.1W
+                     Idc,out = 65.0mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 13.74μs
+                         fsw = 72.76kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 63.6%
+   δd = T_diode_on / T_ls_on ≈ 24.6%
+                    Irms,pri = 399mA
+                    Imax,pri = 652mA
+                       Vdc,r = 286V
+                    Vacrms,r = 22.3V
+                       Ψ,pri = 774μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 21.6W
+                     Idc,out = 69.7mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 22.75μs
+                         fsw = 43.96kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 80.5%
+   δd = T_diode_on / T_ls_on ≈ 14.5%
+                    Irms,pri = 466mA
+                    Imax,pri = 675mA
+                       Vdc,r = 319V
+                    Vacrms,r = 42.0V
+                       Ψ,pri = 802μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 18.95μs
+                         fsw = 52.77kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 75.4%
+   δd = T_diode_on / T_ls_on ≈ 17.7%
+                    Irms,pri = 465mA
+                    Imax,pri = 725mA
+                       Vdc,r = 332V
+                    Vacrms,r = 35.0V
+                       Ψ,pri = 861μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 22.3W
+                     Idc,out = 59.0mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.50μs
+                         fsw = 60.60kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 70.4%
+   δd = T_diode_on / T_ls_on ≈ 21.9%
+                    Irms,pri = 402mA
+                    Imax,pri = 648mA
+                       Vdc,r = 282V
+                    Vacrms,r = 23.9V
+                       Ψ,pri = 769μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 21.4W
+                     Idc,out = 69.0mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.22μs
+                         fsw = 70.31kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 64.3%
+   δd = T_diode_on / T_ls_on ≈ 25.0%
+                    Irms,pri = 412mA
+                    Imax,pri = 675mA
+                       Vdc,r = 287V
+                    Vacrms,r = 21.5V
+                       Ψ,pri = 801μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 22.9W
+                     Idc,out = 73.9mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 23.86μs
+                         fsw = 41.90kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 81.1%
+   δd = T_diode_on / T_ls_on ≈ 14.5%
+                    Irms,pri = 481mA
+                    Imax,pri = 696mA
+                       Vdc,r = 320V
+                    Vacrms,r = 41.1V
+                       Ψ,pri = 827μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 19.77μs
+                         fsw = 50.57kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 76.1%
+   δd = T_diode_on / T_ls_on ≈ 17.8%
+                    Irms,pri = 479mA
+                    Imax,pri = 747mA
+                       Vdc,r = 334V
+                    Vacrms,r = 34.0V
+                       Ψ,pri = 888μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 23.4W
+                     Idc,out = 61.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.57μs
+                         fsw = 60.36kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 70.1%
+   δd = T_diode_on / T_ls_on ≈ 21.8%
+                    Irms,pri = 404mA
+                    Imax,pri = 651mA
+                       Vdc,r = 281V
+                    Vacrms,r = 24.2V
+                       Ψ,pri = 773μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 21.2W
+                     Idc,out = 68.4mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.28μs
+                         fsw = 70.01kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 64.0%
+   δd = T_diode_on / T_ls_on ≈ 25.1%
+                    Irms,pri = 416mA
+                    Imax,pri = 679mA
+                       Vdc,r = 287V
+                    Vacrms,r = 21.7V
+                       Ψ,pri = 806μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 23.6W
+                     Idc,out = 76.2mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 23.88μs
+                         fsw = 41.88kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 80.9%
+   δd = T_diode_on / T_ls_on ≈ 14.5%
+                    Irms,pri = 483mA
+                    Imax,pri = 701mA
+                       Vdc,r = 320V
+                    Vacrms,r = 41.4V
+                       Ψ,pri = 832μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 19.82μs
+                         fsw = 50.46kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 75.8%
+   δd = T_diode_on / T_ls_on ≈ 17.8%
+                    Irms,pri = 482mA
+                    Imax,pri = 751mA
+                       Vdc,r = 333V
+                    Vacrms,r = 34.3V
+                       Ψ,pri = 892μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 23.3W
+                     Idc,out = 61.6mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.13μs
+                         fsw = 61.99kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 70.4%
+   δd = T_diode_on / T_ls_on ≈ 21.7%
+                    Irms,pri = 353mA
+                    Imax,pri = 569mA
+                       Vdc,r = 283V
+                    Vacrms,r = 22.6V
+                       Ψ,pri = 745μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 64.6mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 13.91μs
+                         fsw = 71.89kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 64.0%
+   δd = T_diode_on / T_ls_on ≈ 24.5%
+                    Irms,pri = 361mA
+                    Imax,pri = 591mA
+                       Vdc,r = 288V
+                    Vacrms,r = 20.3V
+                       Ψ,pri = 775μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 20.0W
+                     Idc,out = 64.6mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 23.65μs
+                         fsw = 42.29kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 81.5%
+   δd = T_diode_on / T_ls_on ≈ 13.7%
+                    Irms,pri = 423mA
+                    Imax,pri = 606mA
+                       Vdc,r = 323V
+                    Vacrms,r = 39.2V
+                       Ψ,pri = 793μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 19.49μs
+                         fsw = 51.31kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 76.2%
+   δd = T_diode_on / T_ls_on ≈ 17.3%
+                    Irms,pri = 419mA
+                    Imax,pri = 656mA
+                       Vdc,r = 335V
+                    Vacrms,r = 32.4V
+                       Ψ,pri = 859μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.20μs
+                         fsw = 61.72kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 70.1%
+   δd = T_diode_on / T_ls_on ≈ 21.6%
+                    Irms,pri = 356mA
+                    Imax,pri = 572mA
+                       Vdc,r = 283V
+                    Vacrms,r = 22.8V
+                       Ψ,pri = 749μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 64.6mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 13.98μs
+                         fsw = 71.52kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 63.7%
+   δd = T_diode_on / T_ls_on ≈ 24.5%
+                    Irms,pri = 365mA
+                    Imax,pri = 595mA
+                       Vdc,r = 287V
+                    Vacrms,r = 20.6V
+                       Ψ,pri = 780μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 20.5W
+                     Idc,out = 66.3mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 23.66μs
+                         fsw = 42.26kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 81.2%
+   δd = T_diode_on / T_ls_on ≈ 13.7%
+                    Irms,pri = 426mA
+                    Imax,pri = 610mA
+                       Vdc,r = 322V
+                    Vacrms,r = 39.5V
+                       Ψ,pri = 799μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 19.54μs
+                         fsw = 51.18kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 75.9%
+   δd = T_diode_on / T_ls_on ≈ 17.2%
+                    Irms,pri = 422mA
+                    Imax,pri = 660mA
+                       Vdc,r = 335V
+                    Vacrms,r = 32.7V
+                       Ψ,pri = 865μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.84μs
+                         fsw = 59.38kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 70.7%
+   δd = T_diode_on / T_ls_on ≈ 21.6%
+                    Irms,pri = 366mA
+                    Imax,pri = 590mA
+                       Vdc,r = 284V
+                    Vacrms,r = 22.1V
+                       Ψ,pri = 772μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 64.6mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.45μs
+                         fsw = 69.18kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 64.4%
+   δd = T_diode_on / T_ls_on ≈ 24.9%
+                    Irms,pri = 376mA
+                    Imax,pri = 616mA
+                       Vdc,r = 289V
+                    Vacrms,r = 19.9V
+                       Ψ,pri = 807μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 21.6W
+                     Idc,out = 69.8mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 24.82μs
+                         fsw = 40.28kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 81.8%
+   δd = T_diode_on / T_ls_on ≈ 13.7%
+                    Irms,pri = 438mA
+                    Imax,pri = 628mA
+                       Vdc,r = 323V
+                    Vacrms,r = 38.6V
+                       Ψ,pri = 823μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 20.39μs
+                         fsw = 49.04kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 76.5%
+   δd = T_diode_on / T_ls_on ≈ 17.2%
+                    Irms,pri = 434mA
+                    Imax,pri = 680mA
+                       Vdc,r = 336V
+                    Vacrms,r = 31.8V
+                       Ψ,pri = 891μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 20.2W
+                     Idc,out = 53.5mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.91μs
+                         fsw = 59.13kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 70.4%
+   δd = T_diode_on / T_ls_on ≈ 21.6%
+                    Irms,pri = 368mA
+                    Imax,pri = 593mA
+                       Vdc,r = 283V
+                    Vacrms,r = 22.3V
+                       Ψ,pri = 776μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 64.6mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.52μs
+                         fsw = 68.86kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 64.1%
+   δd = T_diode_on / T_ls_on ≈ 24.9%
+                    Irms,pri = 379mA
+                    Imax,pri = 620mA
+                       Vdc,r = 288V
+                    Vacrms,r = 20.1V
+                       Ψ,pri = 812μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 22.3W
+                     Idc,out = 71.9mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 24.84μs
+                         fsw = 40.25kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 81.5%
+   δd = T_diode_on / T_ls_on ≈ 13.7%
+                    Irms,pri = 441mA
+                    Imax,pri = 633mA
+                       Vdc,r = 323V
+                    Vacrms,r = 38.9V
+                       Ψ,pri = 829μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 23.8μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 20.44μs
+                         fsw = 48.92kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 76.2%
+   δd = T_diode_on / T_ls_on ≈ 17.2%
+                    Irms,pri = 437mA
+                    Imax,pri = 684mA
+                       Vdc,r = 336V
+                    Vacrms,r = 32.1V
+                       Ψ,pri = 896μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 20.1W
+                     Idc,out = 53.0mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.20μs
+                         fsw = 61.74kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 69.8%
+   δd = T_diode_on / T_ls_on ≈ 22.2%
+                    Irms,pri = 403mA
+                    Imax,pri = 647mA
+                       Vdc,r = 280V
+                    Vacrms,r = 26.1V
+                       Ψ,pri = 770μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 21.5W
+                     Idc,out = 69.5mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.04μs
+                         fsw = 71.20kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 63.8%
+   δd = T_diode_on / T_ls_on ≈ 25.3%
+                    Irms,pri = 412mA
+                    Imax,pri = 674mA
+                       Vdc,r = 285V
+                    Vacrms,r = 23.5V
+                       Ψ,pri = 802μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 22.9W
+                     Idc,out = 73.9mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 22.95μs
+                         fsw = 43.58kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 80.3%
+   δd = T_diode_on / T_ls_on ≈ 15.2%
+                    Irms,pri = 481mA
+                    Imax,pri = 699mA
+                       Vdc,r = 317V
+                    Vacrms,r = 43.9V
+                       Ψ,pri = 831μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 19.21μs
+                         fsw = 52.06kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 75.4%
+   δd = T_diode_on / T_ls_on ≈ 18.4%
+                    Irms,pri = 481mA
+                    Imax,pri = 747mA
+                       Vdc,r = 331V
+                    Vacrms,r = 36.7V
+                       Ψ,pri = 889μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 24.6W
+                     Idc,out = 65.1mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.26μs
+                         fsw = 61.51kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 69.5%
+   δd = T_diode_on / T_ls_on ≈ 22.1%
+                    Irms,pri = 405mA
+                    Imax,pri = 650mA
+                       Vdc,r = 279V
+                    Vacrms,r = 26.3V
+                       Ψ,pri = 774μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 21.3W
+                     Idc,out = 68.8mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.10μs
+                         fsw = 70.90kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 63.5%
+   δd = T_diode_on / T_ls_on ≈ 25.3%
+                    Irms,pri = 416mA
+                    Imax,pri = 678mA
+                       Vdc,r = 285V
+                    Vacrms,r = 23.8V
+                       Ψ,pri = 807μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 23.6W
+                     Idc,out = 76.3mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 22.96μs
+                         fsw = 43.55kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 80.0%
+   δd = T_diode_on / T_ls_on ≈ 15.1%
+                    Irms,pri = 484mA
+                    Imax,pri = 703mA
+                       Vdc,r = 317V
+                    Vacrms,r = 44.2V
+                       Ψ,pri = 836μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 19.25μs
+                         fsw = 51.94kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 75.2%
+   δd = T_diode_on / T_ls_on ≈ 18.4%
+                    Irms,pri = 483mA
+                    Imax,pri = 751mA
+                       Vdc,r = 331V
+                    Vacrms,r = 37.0V
+                       Ψ,pri = 894μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 24.5W
+                     Idc,out = 64.8mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.90μs
+                         fsw = 59.19kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 70.2%
+   δd = T_diode_on / T_ls_on ≈ 22.4%
+                    Irms,pri = 419mA
+                    Imax,pri = 673mA
+                       Vdc,r = 280V
+                    Vacrms,r = 25.5V
+                       Ψ,pri = 800μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 22.6W
+                     Idc,out = 73.1mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.61μs
+                         fsw = 68.44kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 64.2%
+   δd = T_diode_on / T_ls_on ≈ 25.7%
+                    Irms,pri = 430mA
+                    Imax,pri = 703mA
+                       Vdc,r = 286V
+                    Vacrms,r = 23.0V
+                       Ψ,pri = 836μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 25.0W
+                     Idc,out = 80.8mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 24.10μs
+                         fsw = 41.50kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 80.5%
+   δd = T_diode_on / T_ls_on ≈ 15.2%
+                    Irms,pri = 500mA
+                    Imax,pri = 726mA
+                       Vdc,r = 318V
+                    Vacrms,r = 43.4V
+                       Ψ,pri = 864μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 20.10μs
+                         fsw = 49.75kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 75.8%
+   δd = T_diode_on / T_ls_on ≈ 18.5%
+                    Irms,pri = 499mA
+                    Imax,pri = 775mA
+                       Vdc,r = 332V
+                    Vacrms,r = 36.0V
+                       Ψ,pri = 922μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 25.7W
+                     Idc,out = 67.8mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.96μs
+                         fsw = 58.97kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 69.9%
+   δd = T_diode_on / T_ls_on ≈ 22.3%
+                    Irms,pri = 421mA
+                    Imax,pri = 675mA
+                       Vdc,r = 280V
+                    Vacrms,r = 25.8V
+                       Ψ,pri = 803μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 22.4W
+                     Idc,out = 72.4mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.67μs
+                         fsw = 68.17kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 63.9%
+   δd = T_diode_on / T_ls_on ≈ 25.7%
+                    Irms,pri = 434mA
+                    Imax,pri = 707mA
+                       Vdc,r = 286V
+                    Vacrms,r = 23.3V
+                       Ψ,pri = 841μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 25.7W
+                     Idc,out = 83.1mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 24.11μs
+                         fsw = 41.48kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 80.3%
+   δd = T_diode_on / T_ls_on ≈ 15.2%
+                    Irms,pri = 502mA
+                    Imax,pri = 730mA
+                       Vdc,r = 318V
+                    Vacrms,r = 43.6V
+                       Ψ,pri = 869μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.16mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 20.14μs
+                         fsw = 49.65kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 75.5%
+   δd = T_diode_on / T_ls_on ≈ 18.4%
+                    Irms,pri = 501mA
+                    Imax,pri = 779mA
+                       Vdc,r = 332V
+                    Vacrms,r = 36.3V
+                       Ψ,pri = 927μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 25.6W
+                     Idc,out = 67.5mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.54μs
+                         fsw = 60.45kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 70.1%
+   δd = T_diode_on / T_ls_on ≈ 22.0%
+                    Irms,pri = 367mA
+                    Imax,pri = 589mA
+                       Vdc,r = 281V
+                    Vacrms,r = 24.1V
+                       Ψ,pri = 773μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 64.6mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.28μs
+                         fsw = 70.01kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 64.0%
+   δd = T_diode_on / T_ls_on ≈ 25.1%
+                    Irms,pri = 376mA
+                    Imax,pri = 614mA
+                       Vdc,r = 287V
+                    Vacrms,r = 21.7V
+                       Ψ,pri = 806μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 21.4W
+                     Idc,out = 69.0mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 23.86μs
+                         fsw = 41.90kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 81.0%
+   δd = T_diode_on / T_ls_on ≈ 14.3%
+                    Irms,pri = 438mA
+                    Imax,pri = 630mA
+                       Vdc,r = 320V
+                    Vacrms,r = 41.2V
+                       Ψ,pri = 827μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 19.82μs
+                         fsw = 50.46kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 75.8%
+   δd = T_diode_on / T_ls_on ≈ 17.8%
+                    Irms,pri = 436mA
+                    Imax,pri = 680mA
+                       Vdc,r = 333V
+                    Vacrms,r = 34.3V
+                       Ψ,pri = 892μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 21.1W
+                     Idc,out = 55.7mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 16.61μs
+                         fsw = 60.21kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 69.8%
+   δd = T_diode_on / T_ls_on ≈ 21.9%
+                    Irms,pri = 369mA
+                    Imax,pri = 592mA
+                       Vdc,r = 281V
+                    Vacrms,r = 24.4V
+                       Ψ,pri = 777μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 64.6mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.35μs
+                         fsw = 69.68kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 63.6%
+   δd = T_diode_on / T_ls_on ≈ 25.1%
+                    Irms,pri = 379mA
+                    Imax,pri = 619mA
+                       Vdc,r = 286V
+                    Vacrms,r = 22.0V
+                       Ψ,pri = 812μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 22.0W
+                     Idc,out = 71.2mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 23.88μs
+                         fsw = 41.87kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 80.7%
+   δd = T_diode_on / T_ls_on ≈ 14.3%
+                    Irms,pri = 441mA
+                    Imax,pri = 634mA
+                       Vdc,r = 320V
+                    Vacrms,r = 41.5V
+                       Ψ,pri = 832μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 37.0nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 19.87μs
+                         fsw = 50.33kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 75.6%
+   δd = T_diode_on / T_ls_on ≈ 17.7%
+                    Irms,pri = 438mA
+                    Imax,pri = 684mA
+                       Vdc,r = 333V
+                    Vacrms,r = 34.6V
+                       Ψ,pri = 897μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 20.9W
+                     Idc,out = 55.4mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 17.27μs
+                         fsw = 57.89kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 70.5%
+   δd = T_diode_on / T_ls_on ≈ 21.9%
+                    Irms,pri = 380mA
+                    Imax,pri = 611mA
+                       Vdc,r = 282V
+                    Vacrms,r = 23.6V
+                       Ψ,pri = 802μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.1W
+                     Idc,out = 65.0mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.85μs
+                         fsw = 67.33kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 64.3%
+   δd = T_diode_on / T_ls_on ≈ 25.4%
+                    Irms,pri = 392mA
+                    Imax,pri = 640mA
+                       Vdc,r = 288V
+                    Vacrms,r = 21.3V
+                       Ψ,pri = 840μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 23.2W
+                     Idc,out = 74.9mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 25.06μs
+                         fsw = 39.91kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 81.3%
+   δd = T_diode_on / T_ls_on ≈ 14.4%
+                    Irms,pri = 454mA
+                    Imax,pri = 654mA
+                       Vdc,r = 321V
+                    Vacrms,r = 40.6V
+                       Ψ,pri = 858μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 475pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 20.73μs
+                         fsw = 48.24kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 76.2%
+   δd = T_diode_on / T_ls_on ≈ 17.8%
+                    Irms,pri = 452mA
+                    Imax,pri = 705mA
+                       Vdc,r = 334V
+                    Vacrms,r = 33.6V
+                       Ψ,pri = 925μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 22.0W
+                     Idc,out = 58.2mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 17.34μs
+                         fsw = 57.66kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 70.2%
+   δd = T_diode_on / T_ls_on ≈ 21.8%
+                    Irms,pri = 382mA
+                    Imax,pri = 614mA
+                       Vdc,r = 282V
+                    Vacrms,r = 23.9V
+                       Ψ,pri = 806μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 64.6mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 310V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 14.92μs
+                         fsw = 67.03kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 64.0%
+   δd = T_diode_on / T_ls_on ≈ 25.5%
+                    Irms,pri = 395mA
+                    Imax,pri = 644mA
+                       Vdc,r = 287V
+                    Vacrms,r = 21.5V
+                       Ψ,pri = 846μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 23.9W
+                     Idc,out = 77.1mV
+                     Vdc,out = 310V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 390V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 25.07μs
+                         fsw = 39.88kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 81.1%
+   δd = T_diode_on / T_ls_on ≈ 14.4%
+                    Irms,pri = 457mA
+                    Imax,pri = 658mA
+                       Vdc,r = 321V
+                    Vacrms,r = 40.9V
+                       Ψ,pri = 864μWb
+                     Vdc,bus = 390V
+                    Pavg,out = 20.0W
+                     Idc,out = 52.9mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
+-------- An asymmetrical half-bridge LLC converter ---------
+                          Lr = 26.3μH
+                          Lm = 1.29mH
+                          Cr = 40.9nF
+                         Chb = 525pF
+              DC bus voltage = 430V
+              Output voltage = 378V
+
+------------ Converter operates in steady-state ------------
+                         Tsw = 20.78μs
+                         fsw = 48.13kHz
+             (Corrected) T12 = 500.0ns
+         δhs = T_hs_on / Tsw ≈ 75.9%
+   δd = T_diode_on / T_ls_on ≈ 17.8%
+                    Irms,pri = 454mA
+                    Imax,pri = 709mA
+                       Vdc,r = 334V
+                    Vacrms,r = 33.9V
+                       Ψ,pri = 930μWb
+                     Vdc,bus = 430V
+                    Pavg,out = 21.9W
+                     Idc,out = 57.8mV
+                     Vdc,out = 378V
+
+************************************************************************************************************************
+
