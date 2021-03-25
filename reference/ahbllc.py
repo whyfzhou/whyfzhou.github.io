@@ -51,6 +51,7 @@ class AHBLLCTrafo(AHBLLC):
 
 class Evaluation:
     def __init__(self, **kwargs):
+        self.operation = kwargs.get('operation', 'unknown')
         self.tsw = kwargs.get('tsw', 0)
         self.irms = kwargs.get('irms', 0)
         self.imax = kwargs.get('imax', 0)
@@ -62,6 +63,7 @@ class Evaluation:
         self.t_ls_on = kwargs.get('t_ls_on', 0)
         self.t_ls_off = kwargs.get('t_ls_off', 0)
         self.t_hs_on = kwargs.get('t_hs_on', 0)
+        self.t12 = kwargs.get('t12', 0)
         self.ckt = None
 
     def set_circuit(self, ckt):
@@ -69,8 +71,15 @@ class Evaluation:
 
     def __str__(self):
         s = ''
+        if self.operation == 'unknown':
+            s += f'{" Failed to evaluate, operation unknown ":-^60}\n'
+        elif self.operation == 'steady-state':
+            s += f'{" Converter operates in steady-state ":-^60}\n'
+        else:
+            s += f'{" Converter stabilizing... ":-^60}\n'
         s += f'{"Tsw":>30} = {fmt(self.tsw, 4)}s\n'
         s += f'{"fsw":>30} = {fmt(1 / self.tsw, 4)}Hz\n'
+        s += f'{"(Corrected) T12":>30} = {fmt(self.t12, 4)}s\n'
         s += f'{"δhs = T_hs_on / Tsw":>30} ≈ {self.t_hs_on / self.tsw:.1%}\n'
         s += f'{"δd = T_diode_on / T_ls_on":>30} ≈ {self.t_diode_on / self.tsw:.1%}\n'
         s += f'{"Irms,pri":>30} = {fmt(self.irms, 3)}A\n'
@@ -95,7 +104,7 @@ class Evaluation:
 
 class State:
     def __init__(self, **kwargs):
-        self.state = kwargs.get('state', 0)
+        self.state = kwargs.get('state', 'unknown')
         self.dt = kwargs.get('dt', 0)
 
         self.i0 = kwargs.get('i0', 0)
@@ -578,29 +587,13 @@ def sim(i0, ckt, con):
     return res, t12, states
 
 
-def find_steady_state(voff, ckt, t12min=500e-9, fswmax=100e3):
-    def eq(i):
-        di, _, ss = sim(i, ckt, (voff, t12min))
-        fsw = 1 / sum(s.dt for s in ss)
-        if fsw > fswmax:
-            def eqf(t):
-                _, _, ss = sim(i, ckt, (voff, t))
-                fsw = 1 / sum(s.dt for s in ss)
-                return fsw - fswmax
-            t12 = nsolve(eqf, .5e-6, 1 / fswmax)
-            di, _, ss = sim(i, ckt, (voff, t12))
-        else:
-            t12 = max(t12min, [s for s in ss if s.state == 'l0'][-1].dt)
-        dv = ss[-1].v1 - voff
-        return di, dv, t12, ss
+def evaluate_switching_period(states):
+    if (abs(states[0].i0 - states[-1].i1) < MINIMUM_CURRENT and
+        abs(states[0].v0 - states[-1].v1) < MINIMUM_VOLTAGE):
+        operation = 'steady-state'
+    else:
+        operation = 'dynamics'
 
-    i0max = ckt.vbus / ((ckt.lr + ckt.lm) / ckt.cr)**.5
-    i0 = nsolve(lambda i: eq(i)[0], 1e-3, i0max * 2)
-    _, _, t12, ss = eq(i0)
-    return t12, ss
-
-
-def evaluate_steady_state(states):
     tsw = 0
     qout = i2acc = imax = vacc = v2acc = 0
     t_diode_on = t_hs_off = t_ls_on = t_ls_off = t_hs_on = 0
@@ -638,7 +631,10 @@ def evaluate_steady_state(states):
     vavg = vacc / tsw
     vrms = (v2acc / tsw)**.5
     iout = qout / tsw
-    return Evaluation(tsw=tsw,
+
+    t12 = [s for s in states if s.state == 'l0'][-1].dt
+    return Evaluation(operation=operation,
+                      tsw=tsw,
                       irms=irms,
                       imax=imax,
                       vavg=vavg,
@@ -648,15 +644,36 @@ def evaluate_steady_state(states):
                       t_hs_off=t_hs_off,
                       t_ls_on=t_ls_on,
                       t_ls_off=t_ls_off,
-                      t_hs_on=t_hs_on)
+                      t_hs_on=t_hs_on,
+                      t12=t12)
+
+
+def find_steady_state(voff, ckt, t12min=500e-9, fswmax=100e3):
+    def eq(i):
+        di, _, ss = sim(i, ckt, (voff, t12min))
+        fsw = 1 / sum(s.dt for s in ss)
+        if fsw > fswmax:
+            def eqf(t):
+                _, _, ss = sim(i, ckt, (voff, t))
+                fsw = 1 / sum(s.dt for s in ss)
+                return fsw - fswmax
+            t12 = nsolve(eqf, .5e-6, 1 / fswmax)
+            di, _, ss = sim(i, ckt, (voff, t12))
+        dv = ss[-1].v1 - voff
+        return di, dv, ss
+
+    i0max = ckt.vbus / ((ckt.lr + ckt.lm) / ckt.cr)**.5
+    i0 = nsolve(lambda i: eq(i)[0], 1e-3, i0max * 2)
+    _, _, ss = eq(i0)
+    return ss
 
 
 def evaluate_operating_point(pout, ckt, t12min=500e-9, fswmax=100e3):
-    pmax = evaluate_steady_state(find_steady_state(ckt.vbus, ckt, t12min, fswmax)[-1]).iout * ckt.vout
+    pmax = evaluate_switching_period(find_steady_state(ckt.vbus, ckt, t12min, fswmax)).iout * ckt.vout
     if 0 < pout <= pmax:
-        voff = nsolve(lambda v: evaluate_steady_state(find_steady_state(v, ckt, t12min, fswmax)[-1]).iout * ckt.vout - pout,
+        voff = nsolve(lambda v: evaluate_switching_period(find_steady_state(v, ckt, t12min, fswmax)).iout * ckt.vout - pout,
                       1e-3, ckt.vbus)
-        t12, ss = find_steady_state(voff, ckt, t12min, fswmax)
-        return t12, ss, evaluate_steady_state(ss)
+        ss = find_steady_state(voff, ckt, t12min, fswmax)
+        return ss, evaluate_switching_period(ss)
     else:
         return 0, [State()], Evaluation()

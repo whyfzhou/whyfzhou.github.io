@@ -12,8 +12,7 @@ import matplotlib.pyplot as plt
 def test():
     ckt = ahbllc.AHBLLCTrafo(25e-6, 1225e-6, 39e-9, 4.3, 410, 40, chb=500e-12)
     print(ckt)
-    t12, ss, ev = ahbllc.evaluate_operating_point(.4, ckt)
-    print(t12)
+    ss, ev = ahbllc.evaluate_operating_point(.4, ckt)
     ev.set_circuit(ckt)
     print(ev)
     plothelper.plot(ss, show=True)
