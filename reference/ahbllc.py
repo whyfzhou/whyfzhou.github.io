@@ -679,6 +679,6 @@ def evaluate_operating_point(pout, ckt, t12min=500e-9, fswmax=100e3):
         voff = nsolve(lambda v: evaluate_switching_period(find_steady_state(v, ckt, t12min, fswmax)).iout * ckt.vout - pout,
                       1e-3, ckt.vbus)
         ss = find_steady_state(voff, ckt, t12min, fswmax)
-        return ss, evaluate_switching_period(ss)
+        return voff, ss, evaluate_switching_period(ss)
     else:
-        return [State()], Evaluation()
+        return 0, [State()], Evaluation()

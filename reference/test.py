@@ -12,9 +12,11 @@ import matplotlib.pyplot as plt
 def test1():
     ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
     print(ckt)
-    ss, ev = ahbllc.evaluate_operating_point(1, ckt)
+    voff, ss, ev = ahbllc.evaluate_operating_point(1, ckt)
     ev.set_circuit(ckt)
     print(ev)
+    plothelper.plot(ss, show=True)
+    ss = ahbllc.find_steady_state(voff+1, ckt)
     plothelper.plot(ss, show=True)
 
 

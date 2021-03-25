@@ -21,7 +21,7 @@ def evaluate_operating_point_with_tolerance(pout, ckt, t12min=500e-9, fswmax=100
     for lr, lm, cr, chb, nps, vbus in itertools.product(lrs, lms, crs, chbs, npss, vbuss):
         vout = nps * vload
         cc = ahbllc.AHBLLC(lr=lr, lm=lm, cr=cr, vbus=vbus, vout=vout, chb=chb)
-        ss, ev = ahbllc.evaluate_operating_point(pout, cc, t12min, fswmax)
+        _, ss, ev = ahbllc.evaluate_operating_point(pout, cc, t12min, fswmax)
         ev.set_circuit(cc)
         sss.append(ss)
         evs.append(ev)
