@@ -270,21 +270,16 @@ def state_h0(i0, v0, vhb0, im0, ckt, con):
     # im = i
 
     # now solve the following system
-    #   (i * z)**2 + (v - vcen)**2 == r**2
-    #   v == voff
+    # voff == r * sin(w * t + phi) + vcen
     if -r <= voff - vcen <= r:
-        i1 = (r**2 - (voff - vcen)**2)**.5 / z
-        v1 = voff
-    else:  # CAUTION: switching off the high-side at maximum current
-        i1 = 0
-        v1 = vcen + r
-    dt = (math.atan2(v1 - vcen, i1 * z) - phi) / w
+        dt = min((math.asin((voff - vcen) / r) - phi) % (2 * math.pi),
+                 (math.pi - math.asin((voff - vcen) / r) - phi) % (2 * math.pi)) / w
+    else:  # then let's switch off the high-side at maximum voltage
+        dt = ((math.pi / 2 - phi) % (2 * math.pi)) / w
+    i1 = r * math.cos(w * dt + phi) / z
+    v1 = r * math.sin(w * dt + phi) + vcen
 
-    v_diode_on = ckt.vout / ckt.lm * (ckt.lr + ckt.lm)
-    if v1 > v_diode_on:
-        next_state = state_c1
-    else:
-        next_state = state_c0
+    next_state = state_c0
     return next_state, State(state='h0', dt=dt,
                              i0=i0, v0=v0, vhb0=vhb0, im0=i0,
                              i1=i1, v1=v1, vhb1=vhb0, im1=i1,
@@ -528,11 +523,9 @@ def sim(i0, ckt, con):
     # starting at the turning-off moment of the high-side device
     v0 = voff
     vhb0 = ckt.vbus
-    v_diode_on = ckt.vout / ckt.lm * (ckt.lr + ckt.lm)
-    isf = state_c1 if v0 - vhb0 >= v_diode_on else state_c0
 
     # high-side turning-off phase
-    nsf, hs_off = _sim_phase(isf, commutating, i0, v0, vhb0, i0, ckt, None)
+    nsf, hs_off = _sim_phase(state_c0, commutating, i0, v0, vhb0, i0, ckt, None)
     hs_off_fins = (hs_off[-1].i1, hs_off[-1].v1, hs_off[-1].vhb1, hs_off[-1].im1)
 
     isf_ls_on = nsf  # remember the initial state of the low-side on phase,
