@@ -467,7 +467,7 @@ def _sim1(isf, cond, i0, v0, vhb0, im0, ckt, t12):
     nsf, s = isf(i0, v0, vhb0, im0, ckt, t12)
     states = [s]
     while cond(nsf):
-        nsf, s = nsf(s['i1'], s['v1'], s['vhb1'], s['im1'], ckt, t12)
+        nsf, s = nsf(s.i1, s.v1, s.vhb1, s.im1, ckt, t12)
         states.append(s)
     return nsf, states
 
@@ -478,23 +478,23 @@ def sim(i0, ckt, con):
 
     def eq_zvon(t, hs_off_fins):
         _, ss = _sim1(isf_ls_on, active, *hs_off_fins, ckt, t)
-        ls_on_fins = (ss[-1]['i1'], ss[-1]['v1'], ss[-1]['vhb1'], ss[-1]['im1'])
+        ls_on_fins = (ss[-1].i1, ss[-1].v1, ss[-1].vhb1, ss[-1].im1)
         _, ss = _sim1(state_c0, commutating, *ls_on_fins, ckt, t)
         c0 = ss[-1]
-        r, chb, cr = c0['r'], c0['chb'], c0['cr']
-        vout, v0, vhb0 = c0['vout'], c0['v0'], c0['vhb0']
+        r, chb, cr = c0.r, c0.chb, c0.cr
+        vout, v0, vhb0 = c0['vout'], c0.v0, c0.vhb0
         vhbmax = r / (1 + chb/cr) - (vout-v0) / (1 + chb/cr) + vhb0 / (1 + cr/chb)
         return vhbmax - ckt.vbus
 
     # def eq_vcont(t, hs_off_fins):
     #     """实际上并不是这么做的，而是用了限制最高频率的方式。"""
     #     _, ss = sim1(isf_ls_on, active, *hs_off_fins, ckt, t)
-    #     ls_on_fins = (ss[-1]['i1'], ss[-1]['v1'], ss[-1]['vhb1'], ss[-1]['im1'])
+    #     ls_on_fins = (ss[-1].i1, ss[-1].v1, ss[-1].vhb1, ss[-1].im1)
     #     _, ss = sim1(state_c0, commutating, *ls_on_fins, ckt, t)
-    #     # ls_off_fin_v = ss[-1]['v1']
+    #     # ls_off_fin_v = ss[-1].v1
     #     # return ls_off_fin_v - voff*.99  # FIXME: 实际上并不是这么做的
-    #     v0 = ss[-1]['v1']
-    #     i0 = ss[-1]['i1']
+    #     v0 = ss[-1].v1
+    #     i0 = ss[-1].i1
     #     z = ((ckt.lr + ckt.lm) / ckt.cr)**.5
     #     vcen = ckt.vbus
     #     r = math.hypot(v0 - vcen, i0 * z)
@@ -511,76 +511,76 @@ def sim(i0, ckt, con):
     isf = state_c1 if v0 - vhb0 >= v_diode_on else state_c0
 
     nsf, hs_off = _sim1(isf, commutating, i0, v0, vhb0, i0, ckt, t12min)
-    hs_off_fins = (hs_off[-1]['i1'], hs_off[-1]['v1'], hs_off[-1]['vhb1'], hs_off[-1]['im1'])
+    hs_off_fins = (hs_off[-1].i1, hs_off[-1].v1, hs_off[-1].vhb1, hs_off[-1].im1)
 
     isf_ls_on = nsf
     nsf, ls_on = _sim1(isf_ls_on, active, *hs_off_fins, ckt, t12min)
-    ls_on_fins = (ls_on[-1]['i1'], ls_on[-1]['v1'], ls_on[-1]['vhb1'], ls_on[-1]['im1'])
-    t12capm = ls_on[-1]['dt']
+    ls_on_fins = (ls_on[-1].i1, ls_on[-1].v1, ls_on[-1].vhb1, ls_on[-1].im1)
+    t12capm = ls_on[-1].dt
 
     nsf, ls_off = _sim1(state_c0, commutating, *ls_on_fins, ckt, t12min)
-    ls_off_fins = (ls_off[-1]['i1'], ls_off[-1]['v1'], ls_off[-1]['vhb1'], ls_off[-1]['im1'])
+    ls_off_fins = (ls_off[-1].i1, ls_off[-1].v1, ls_off[-1].vhb1, ls_off[-1].im1)
 
     t12zvon = 0
     # t12zvon = t12vcont = 0
-    t12max = (math.pi - ls_on[-1]['phi']) / ls_on[-1]['w']
-    if ls_off[-1]['vhb1'] < ckt.vbus - 1e-6:
+    t12max = (math.pi - ls_on[-1].phi) / ls_on[-1].w
+    if ls_off[-1].vhb1 < ckt.vbus - 1e-6:
         if eq_zvon(t12max, hs_off_fins) >= 0:
             t12zvon = nsolve(lambda t: eq_zvon(t, hs_off_fins), t12min / 2, t12max)
         else:
             t12zvon = t12max
-    # if ls_off[-1]['v1'] > voff:
+    # if ls_off[-1].v1 > voff:
     #     t12vcont = nsolve(lambda t: eq_vcont(t, hs_off_fins), t12min / 2, t12max)
     # t12 = max(t12min, t12capm, t12zvon, t12vcont)
     t12 = max(t12min, t12capm, t12zvon)
 
     if t12 > t12min:
         nsf, ls_on = _sim1(isf_ls_on, active, *hs_off_fins, ckt, t12)
-        ls_on_fins = (ls_on[-1]['i1'], ls_on[-1]['v1'], ls_on[-1]['vhb1'], ls_on[-1]['im1'])
+        ls_on_fins = (ls_on[-1].i1, ls_on[-1].v1, ls_on[-1].vhb1, ls_on[-1].im1)
         nsf, ls_off = _sim1(state_c0, commutating, *ls_on_fins, ckt, t12)
-        ls_off_fins = (ls_off[-1]['i1'], ls_off[-1]['v1'], ls_off[-1]['vhb1'], ls_off[-1]['im1'])
+        ls_off_fins = (ls_off[-1].i1, ls_off[-1].v1, ls_off[-1].vhb1, ls_off[-1].im1)
 
-    if ls_off[-1]['v1'] > voff:
-        hs_on_v0 = ls_off[-1]['v1']
-        hs_on_i0 = ls_off[-1]['i1']
+    if ls_off[-1].v1 > voff:
+        hs_on_v0 = ls_off[-1].v1
+        hs_on_i0 = ls_off[-1].i1
         hs_on_z = ((ckt.lr + ckt.lm) / ckt.cr)**.5
         hs_on_w = ((ckt.lr + ckt.lm) * ckt.cr)**-.5
         hs_on_vcen = ckt.vbus
         hs_on_r = math.hypot(hs_on_v0 - hs_on_vcen, hs_on_i0 * hs_on_z)
         hs_on_phi = math.atan2(hs_on_v0 - hs_on_vcen, hs_on_i0 * hs_on_z)
         dtmax = 600e-9
-        dthson = dtmax - sum(s['dt'] for s in ls_off)
+        dthson = dtmax - sum(s.dt for s in ls_off)
         if dthson <= 100e-9:
             dthson = 100e-9
         hs_on_v1 = hs_on_r * math.sin(hs_on_w * dthson + hs_on_phi) + hs_on_vcen
         _, hs_on = _sim1(state_h0, active, *ls_off_fins, ckt, hs_on_v1)
     else:
         _, hs_on = _sim1(state_h0, active, *ls_off_fins, ckt, voff)
-    # if hs_on[-1]['v1'] > voff + 1e-6:
-    #     res = hs_on[-1]['v1'] - voff
+    # if hs_on[-1].v1 > voff + 1e-6:
+    #     res = hs_on[-1].v1 - voff
     # else:
-    #     res = hs_on[-1]['i1'] - i0
+    #     res = hs_on[-1].i1 - i0
     # _, hs_on = sim1(state_h0, active, *ls_off_fins, ckt, voff)
-    res = hs_on[-1]['i1'] - i0
+    res = hs_on[-1].i1 - i0
     states = hs_off + ls_on + ls_off + hs_on
-    # return hs_on[-1]['i1'] - i0, t12, states
+    # return hs_on[-1].i1 - i0, t12, states
     return res, t12, states
 
 
 def find_steady_state(voff, ckt, t12min=500e-9, fswmax=100e3):
     def eq(i):
         di, _, ss = sim(i, ckt, (voff, t12min))
-        fsw = 1 / sum(s['dt'] for s in ss)
+        fsw = 1 / sum(s.dt for s in ss)
         if fsw > fswmax:
             def eqf(t):
                 _, _, ss = sim(i, ckt, (voff, t))
-                fsw = 1 / sum(s['dt'] for s in ss)
+                fsw = 1 / sum(s.dt for s in ss)
                 return fsw - fswmax
             t12 = nsolve(eqf, .5e-6, 1 / fswmax)
             di, _, ss = sim(i, ckt, (voff, t12))
         else:
-            t12 = max(t12min, [s for s in ss if s['state'] == 'l0'][-1]['dt'])
-        dv = ss[-1]['v1'] - voff
+            t12 = max(t12min, [s for s in ss if s.state == 'l0'][-1].dt)
+        dv = ss[-1].v1 - voff
         return di, dv, t12, ss
 
     i0max = ckt.vbus / ((ckt.lr + ckt.lm) / ckt.cr)**.5
@@ -594,34 +594,34 @@ def evaluate_steady_state(states):
     qout = i2acc = imax = vacc = v2acc = 0
     t_diode_on = t_hs_off = t_ls_on = t_ls_off = t_hs_on = 0
     for state in states:
-        tsw += state['dt']
-        j = state['r'] / state['z']
-        i2acc += j**2 * state['dt'] / 2
-        i2acc += j**2 / (4 * state['w']) * (math.sin(2 * state['w'] * state['dt'] + 2 * state['phi']) - math.sin(2 * state['phi']))
-        m = state['r'] / (1 + state['cr'] / state['chb'])
-        b = state['v0'] / (1 + state['chb'] / state['cr'])
-        b += (state['vhb0'] + state['vout']) / (1 + state['cr'] / state['chb'])
-        vacc += m / state['w'] * (math.cos(state['phi']) - math.cos(state['w'] * state['dt'] + state['phi']))
-        vacc += b * state['dt']
-        v2acc += (m**2 / 2 + b**2) * state['dt']
-        v2acc -= m**2 / (4 * state['w']) * (math.sin(2 * state['w'] * state['dt'] + 2 * state['phi']) - math.sin(2 * state['phi']))
-        v2acc += 2 * m * b / state['w'] * (math.cos(state['phi']) - math.cos(state['w'] * state['dt'] + state['phi']))
-        if state['state'].endswith('1'):
-            t_diode_on += state['dt']
-            tr = (state['im0'] + state['im1']) * state['dt'] / 2
-            sc = state['cr'] * (state['v0'] - state['v1'])
+        tsw += state.dt
+        j = state.r / state.z
+        i2acc += j**2 * state.dt / 2
+        i2acc += j**2 / (4 * state.w) * (math.sin(2 * state.w * state.dt + 2 * state.phi) - math.sin(2 * state.phi))
+        m = state.r / (1 + state.cr / state.chb)
+        b = state.v0 / (1 + state.chb / state.cr)
+        b += (state.vhb0 + state['vout']) / (1 + state.cr / state.chb)
+        vacc += m / state.w * (math.cos(state.phi) - math.cos(state.w * state.dt + state.phi))
+        vacc += b * state.dt
+        v2acc += (m**2 / 2 + b**2) * state.dt
+        v2acc -= m**2 / (4 * state.w) * (math.sin(2 * state.w * state.dt + 2 * state.phi) - math.sin(2 * state.phi))
+        v2acc += 2 * m * b / state.w * (math.cos(state.phi) - math.cos(state.w * state.dt + state.phi))
+        if state.state.endswith('1'):
+            t_diode_on += state.dt
+            tr = (state.im0 + state.im1) * state.dt / 2
+            sc = state.cr * (state.v0 - state.v1)
             qout += tr + sc
-        if state['state'].startswith('c'):
-            if state['vhb0'] > state['vhb1']:
-                t_hs_off += state['dt']
+        if state.state.startswith('c'):
+            if state.vhb0 > state.vhb1:
+                t_hs_off += state.dt
             else:
-                t_ls_off += state['dt']
-        if state['state'].startswith('l'):
-            t_ls_on += state['dt']
-        if state['state'].startswith('h'):
-            t_hs_on += state['dt']
-        if state['i1'] > imax:
-            imax = state['i1']
+                t_ls_off += state.dt
+        if state.state.startswith('l'):
+            t_ls_on += state.dt
+        if state.state.startswith('h'):
+            t_hs_on += state.dt
+        if state.i1 > imax:
+            imax = state.i1
 
     irms = (i2acc / tsw)**.5
     vavg = vacc / tsw

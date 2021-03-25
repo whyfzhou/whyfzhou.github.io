@@ -63,14 +63,14 @@ def plot(ss, iter=None, fig=None, axes=None, show=True, filename=None):
     lss = ['solid', 'dashed', 'dashdot', 'dotted']
     for k, state in enumerate(ss):
         c = plt.rcParams['axes.prop_cycle'].by_key()['color'][k]
-        s1 = state['state'][0].upper()
-        s2 = state['state'][1]
+        s1 = state.state[0].upper()
+        s2 = state.state[1]
         if iter is None:
             sn = f'$\\rm{s1}_{{{s2}}}$'
         else:
             sn = f'{iter}: $\\rm{s1}_{{{s2}}}$'
 
-        ts = np.linspace(0, state['dt'], n)
+        ts = np.linspace(0, state.dt, n)
 
         # i(t) == r * math.cos(w * t + phi) / z, the resonant current
         #   i(0) == i0 <= 0, guaranteed by previous state
@@ -81,37 +81,37 @@ def plot(ss, iter=None, fig=None, axes=None, show=True, filename=None):
         #           (vg + v0) / (1 + chb / cr) +
         #           vhb0 / (1 + cr / chb)
 
-        iseq = state['r'] * np.cos(state['w'] * ts + state['phi']) / state['z']
-        # vseq = state['r'] * np.sin(state['w'] * ts + state['phi']) + state['vg']
-        vseq = (state['r'] * np.sin(state['w'] * ts + state['phi']) / (1 + state['cr'] / state['chb']) +
-                state['v0'] / (1 + state['chb'] / state['cr']) +
-                (state['vhb0'] + state['vout']) / (1 + state['cr'] / state['chb']))
+        iseq = state.r * np.cos(state.w * ts + state.phi) / state.z
+        # vseq = state.r * np.sin(state.w * ts + state.phi) + state['vg']
+        vseq = (state.r * np.sin(state.w * ts + state.phi) / (1 + state.cr / state.chb) +
+                state.v0 / (1 + state.chb / state.cr) +
+                (state.vhb0 + state['vout']) / (1 + state.cr / state.chb))
         # vhbseq = np.ones(ts.shape) * state['hb']
-        vhbseq = (-state['r'] * np.sin(state['w'] * ts + state['phi']) / (1 + state['chb'] / state['cr']) -
-                  (state['vout'] - state['v0']) /(1 + state['chb'] / state['cr']) +
-                  state['vhb0'] / (1 + state['cr'] / state['chb']))
+        vhbseq = (-state.r * np.sin(state.w * ts + state.phi) / (1 + state.chb / state.cr) -
+                  (state['vout'] - state.v0) /(1 + state.chb / state.cr) +
+                  state.vhb0 / (1 + state.cr / state.chb))
         ax_i.plot(t + ts, iseq, color=c, label=sn)
         ax_v.plot(t + ts, vseq, color=c, label=sn)
         ax_v.plot(t + ts, vhbseq, color=c)
         if last_state is not None and (last_state[0].upper() == 'L'
-                                       and state['state'][0].upper() == 'H'
+                                       and state.state[0].upper() == 'H'
                                        or last_state[0].upper() == 'H'
-                                       and state['state'][0].upper() == 'L'):
+                                       and state.state[0].upper() == 'L'):
             ax_v.plot([t, t], [last_state, state['hb']], color=c)
-        last_state = state['state']
+        last_state = state.state
 
         ax_sp.plot(iseq, vseq, label=sn)
-        ax_sp.plot([0, iseq[0]], [state['vcen'], vseq[0]], color = '#aaa', linestyle=lss[k % 4], zorder=-10)
-        ax_sp.plot([0, iseq[-1]], [state['vcen'], vseq[-1]], color = '#aaa', linestyle=lss[k % 4], zorder=-10)
+        ax_sp.plot([0, iseq[0]], [state.vcen, vseq[0]], color = '#aaa', linestyle=lss[k % 4], zorder=-10)
+        ax_sp.plot([0, iseq[-1]], [state.vcen, vseq[-1]], color = '#aaa', linestyle=lss[k % 4], zorder=-10)
 
-        if state['state'][1] == '1':
-            imseq = state['im0'] + state['km'] * ts
+        if state.state[1] == '1':
+            imseq = state.im0 + state.km * ts
             ax_i.plot(t + ts, imseq, linestyle=':', color=c)
 
-        t += state['dt']
+        t += state.dt
 
-    ax_i.axhline(ss[0]['i0'], alpha=.5, c='#f00', linestyle='dashed')
-    ax_i.axhline(ss[-1]['i1'], alpha=.5, c='#0f0', linestyle='dashdot')
+    ax_i.axhline(ss[0].i0, alpha=.5, c='#f00', linestyle='dashed')
+    ax_i.axhline(ss[-1].i1, alpha=.5, c='#0f0', linestyle='dashdot')
 
     ax_i.set_xlim((0, t))
     ax_i.grid(True)
