@@ -459,7 +459,7 @@ def state_c1(i0, v0, vhb0, im0, ckt, con):
                              vcen=vcen, vout=vout, km=-km) # yapf: disable
 
 
-def _sim1(isf, cond, i0, v0, vhb0, im0, ckt, con):
+def _sim_phase(isf, cond, i0, v0, vhb0, im0, ckt, con):
     nsf, s = isf(i0, v0, vhb0, im0, ckt, con)
     states = [s]
     while cond(nsf):
@@ -475,9 +475,9 @@ def sim(i0, ckt, con):
     def eq_zvon(t, hs_off_fins):
         # from the end moment of the high-side turning-off state (high- to low-side commutation finishes),
         # find out what t12 gives ZV-on of the high-side device.
-        _, ss = _sim1(isf_ls_on, active, *hs_off_fins, ckt, t)
+        _, ss = _sim_phase(isf_ls_on, active, *hs_off_fins, ckt, t)
         ls_on_fins = (ss[-1].i1, ss[-1].v1, ss[-1].vhb1, ss[-1].im1)
-        _, ss = _sim1(state_c0, commutating, *ls_on_fins, ckt, t)
+        _, ss = _sim_phase(state_c0, commutating, *ls_on_fins, ckt, t)
         c0 = ss[-1]
         r, chb, cr = c0.r, c0.chb, c0.cr
         vout, v0, vhb0 = c0['vout'], c0.v0, c0.vhb0
@@ -518,17 +518,17 @@ def sim(i0, ckt, con):
     isf = state_c1 if v0 - vhb0 >= v_diode_on else state_c0
 
     # high-side turning-off phase
-    nsf, hs_off = _sim1(isf, commutating, i0, v0, vhb0, i0, ckt, None)
+    nsf, hs_off = _sim_phase(isf, commutating, i0, v0, vhb0, i0, ckt, None)
     hs_off_fins = (hs_off[-1].i1, hs_off[-1].v1, hs_off[-1].vhb1, hs_off[-1].im1)
 
     isf_ls_on = nsf  # remember the initial state of the low-side on phase,
                      # we may needed repetitively in determine t12 for high-side ZV-on
     # low-side on phase
-    nsf, ls_on = _sim1(isf_ls_on, active, *hs_off_fins, ckt, t12min)
+    nsf, ls_on = _sim_phase(isf_ls_on, active, *hs_off_fins, ckt, t12min)
     ls_on_fins = (ls_on[-1].i1, ls_on[-1].v1, ls_on[-1].vhb1, ls_on[-1].im1)
     t12capm = ls_on[-1].dt  # state_l0 automatically increases t12 and avoids capactive mode
     # low-side turning-off phase
-    nsf, ls_off = _sim1(state_c0, commutating, *ls_on_fins, ckt, None)
+    nsf, ls_off = _sim_phase(state_c0, commutating, *ls_on_fins, ckt, None)
     ls_off_fins = (ls_off[-1].i1, ls_off[-1].v1, ls_off[-1].vhb1, ls_off[-1].im1)
 
     # correct t12
@@ -547,13 +547,13 @@ def sim(i0, ckt, con):
 
     # t12 correction needed
     if t12 > t12min:  # re-run the low-side on and low- to high-side commutation
-        nsf, ls_on = _sim1(isf_ls_on, active, *hs_off_fins, ckt, t12)
+        nsf, ls_on = _sim_phase(isf_ls_on, active, *hs_off_fins, ckt, t12)
         ls_on_fins = (ls_on[-1].i1, ls_on[-1].v1, ls_on[-1].vhb1, ls_on[-1].im1)
-        nsf, ls_off = _sim1(state_c0, commutating, *ls_on_fins, ckt, None)
+        nsf, ls_off = _sim_phase(state_c0, commutating, *ls_on_fins, ckt, None)
         ls_off_fins = (ls_off[-1].i1, ls_off[-1].v1, ls_off[-1].vhb1, ls_off[-1].im1)
 
     # high-side on phase
-    _, hs_on = _sim1(state_h0, active, *ls_off_fins, ckt, voff)
+    _, hs_on = _sim_phase(state_h0, active, *ls_off_fins, ckt, voff)
     res = hs_on[-1].i1 - i0
     if hs_on[-1].v1 > voff + MINIMUM_VOLTAGE:
         dt_ls_off = sum(s.dt for s in ls_off)
@@ -568,7 +568,7 @@ def sim(i0, ckt, con):
         hs_on_r = math.hypot(hs_on_v0 - hs_on_vcen, hs_on_i0 * hs_on_z)
         hs_on_phi = math.atan2(hs_on_v0 - hs_on_vcen, hs_on_i0 * hs_on_z)
         hs_on_v1 = hs_on_r * math.sin(hs_on_w * dt_hs_on + hs_on_phi) + hs_on_vcen
-        _, hs_on = _sim1(state_h0, active, *ls_off_fins, ckt, hs_on_v1)
+        _, hs_on = _sim_phase(state_h0, active, *ls_off_fins, ckt, hs_on_v1)
         # voltage continuity violates if we reach here, which indicates that
         # the i_fin - i0 function could have multiple zeros, and the solver may fail.
         # consider changing the res to keep it monotone
