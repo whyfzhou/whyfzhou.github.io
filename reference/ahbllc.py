@@ -661,7 +661,7 @@ def find_steady_state(voff, ckt, t12min=500e-9, fswmax=100e3):
         return di, dv, ss
 
     i0max = ckt.vbus / ((ckt.lr + ckt.lm) / ckt.cr)**.5
-    i0 = nsolve(lambda i: eq(i)[0], 1e-3, i0max * 2)
+    i0 = nsolve(lambda i: eq(i)[0], .001, i0max * 2)
     _, _, ss = eq(i0)
     return ss
 
@@ -670,7 +670,7 @@ def evaluate_operating_point(pout, ckt, t12min=500e-9, fswmax=100e3):
     pmax = evaluate_switching_period(find_steady_state(ckt.vbus, ckt, t12min, fswmax)).iout * ckt.vout
     if 0 < pout <= pmax:
         voff = nsolve(lambda v: evaluate_switching_period(find_steady_state(v, ckt, t12min, fswmax)).iout * ckt.vout - pout,
-                      1e-3, ckt.vbus)
+                      ckt.vout/10, ckt.vbus)
         ss = find_steady_state(voff, ckt, t12min, fswmax)
         return voff, ss, evaluate_switching_period(ss)
     else:

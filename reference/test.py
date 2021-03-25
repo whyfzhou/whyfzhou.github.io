@@ -15,9 +15,12 @@ def test1():
     voff, ss, ev = ahbllc.evaluate_operating_point(1, ckt)
     ev.set_circuit(ckt)
     print(ev)
+    print(ss[0].i0, '-->', ahbllc.evaluate_switching_period(ss).iout * ckt.vout, fmt(1/ahbllc.evaluate_switching_period(ss).tsw))
     plothelper.plot(ss, show=True)
-    ss = ahbllc.find_steady_state(voff+1, ckt)
-    plothelper.plot(ss, show=True)
+    for dv in [.001, .01, .1, .2, .5, 1, 2, 5, 10]:
+        ss = ahbllc.find_steady_state(voff+dv, ckt)
+        print(ss[0].i0, '-->', ahbllc.evaluate_switching_period(ss).iout * ckt.vout, fmt(1/ahbllc.evaluate_switching_period(ss).tsw))
+        plothelper.plot(ss, show=True)
 
 
 def test2():
