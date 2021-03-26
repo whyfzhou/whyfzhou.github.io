@@ -5,7 +5,7 @@ from plothelper import (fmt, axis_formatter, plot)
 
 import math
 import numpy as np
-from scipy.optimize import brentq as nsolve
+from scipy.optimize import (brentq as nsolve, minimize)
 import matplotlib.pyplot as plt
 
 
@@ -29,16 +29,81 @@ def test2():
 
 
 def test3():
-    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=40, chb=500e-12)
-    dvoff = 10
-    # dv, ss = ahbllc.sim(330, ckt, (dvoff, 500e-9))
-    # print(f'v0 = {fmt(330)}V ==> dv = {fmt(dv, 5)}V')
+    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
+    dvoff = 12
+    # dv, ss = ahbllc.sim(161, ckt, (dvoff, 500e-9))
+    # print(f'v0 = {fmt(161)}V ==> dv = {fmt(dv, 5)}V')
     # plothelper.plot(ss, show=True)
-    for i, v0 in enumerate(range(-100, 400, 10)):
+    for vv in range(333490, 333500, 1):
+        v0 = vv / 1000
         dv, ss = ahbllc.sim(v0, ckt, (dvoff, 500e-9))
-        print(f'v0 = {fmt(v0)}V ==> dv = {fmt(dv, 5)}V')
-        plothelper.plot(ss, show=False, filename=f'{i:03d}')
+        print(f'v0 = {fmt(v0, 6)}V ==> dv = {fmt(dv, 5)}V')
+        fig, *_ = plothelper.plot(ss, show=False, filename='{:0>10}'.format(f'{int(v0 * 1000):_}'),
+                                  sphlines=[ckt.vout / ckt.lm * (ckt.lr + ckt.lm)])
+        plt.close(fig)
+
+
+def test4():
+    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
+    dvoff = 12
+    v0 = 333.496
+    sss = []
+    for _ in range(100):
+        _, ss = ahbllc.sim(v0, ckt, (dvoff, 500e-9))
+        v0 = ss[-1].v1
+        sss += ss
+    fig, *_ = plothelper.plot(sss, show=True, sphlines=[ckt.vout / ckt.lm * (ckt.lr + ckt.lm)],
+                            spradii=False, splegends=False)
+    plt.close(fig)
+
+
+def test5():
+    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
+    dvoff = 49
+    v0 = 287
+    sss = []
+    for _ in range(100):
+        _, ss = ahbllc.sim(v0, ckt, (dvoff, 500e-9))
+        v0 = ss[-1].v1
+        print(f'v0 = {fmt(ss[0].v0)}V, actual dvoff = {fmt(ss[0].v1 - ss[0].v0, 4)}V')
+        sss += ss
+    fig, *_ = plothelper.plot(sss, show=True, sphlines=[ckt.vout / ckt.lm * (ckt.lr + ckt.lm)],
+                            spradii=False, splegends=False)
+    plt.close(fig)
+
+
+def test6():
+    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
+    dvoff = 1
+    i0 = -.5
+    v0 = 272
+    sss = []
+    for _ in range(500):
+        _, ss = ahbllc.sim_dv(i0, v0, ckt, (dvoff, 500e-9))
+        i0, v0 = ss[-1].i1, ss[-1].v1
+        sss += ss
+    fig, *_ = plothelper.plot(sss[-30:], show=True, sphlines=[ckt.vout / ckt.lm * (ckt.lr + ckt.lm)],
+                            spradii=False, splegends=False)
+    plt.close(fig)
+    print(ss[-1].i1, ss[-1].v1)
+
+
+def test7():
+    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
+    dvoff = 1
+    i0 = -.499
+    v0 = 336.75
+    eq = lambda x: math.hypot(*ahbllc.sim_dv(x[0], x[1], ckt, (dvoff, 500e-9))[0])
+    res = minimize(eq, (i0, v0), method='L-BFGS-B')
+    print(res)
+    print(eq((-0.49902207045580427, 336.75073812079916)))
+    i0, v0 = res.x
+    _, ss = ahbllc.sim_dv(i0, v0, ckt, (dvoff, 500e-9))
+    fig, *_ = plothelper.plot(ss, show=True,
+                              sphlines=[ckt.vout / ckt.lm * (ckt.lr + ckt.lm)])
+    plt.close(fig)
 
 
 if __name__ == '__main__':
-    test3()
+    test6()
+    test7()

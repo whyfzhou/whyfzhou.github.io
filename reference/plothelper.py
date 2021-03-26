@@ -46,7 +46,7 @@ def axis_formatter(x, pos):
     return fmt(x)
 
 
-def plot(ss, iter=None, fig=None, axes=None, show=True, filename=None, highlight=False):
+def plot(ss, iter=None, fig=None, axes=None, show=True, filename=None, highlight=False, sphlines=None, spradii=True, splegends=True):
     n = 500
     if axes is None:
         fig = plt.figure(figsize=(8, 8))
@@ -62,7 +62,7 @@ def plot(ss, iter=None, fig=None, axes=None, show=True, filename=None, highlight
     last_state = None
     lss = ['solid', 'dashed', 'dashdot', 'dotted']
     for k, state in enumerate(ss):
-        c = plt.rcParams['axes.prop_cycle'].by_key()['color'][k]
+        c = plt.rcParams['axes.prop_cycle'].by_key()['color'][k % len(plt.rcParams['axes.prop_cycle'].by_key()['color'])]
         s1 = state.state[0].upper()
         s2 = state.state[1]
         if iter is None:
@@ -90,8 +90,9 @@ def plot(ss, iter=None, fig=None, axes=None, show=True, filename=None, highlight
         last_state = state.state
 
         ax_sp.plot(iseq, vseq, label=sn)
-        ax_sp.plot([0, iseq[0]], [state.vcen, vseq[0]], color = '#aaa', linestyle=lss[k % 4], zorder=-10)
-        ax_sp.plot([0, iseq[-1]], [state.vcen, vseq[-1]], color = '#aaa', linestyle=lss[k % 4], zorder=-10)
+        if spradii:
+            ax_sp.plot([0, iseq[0]], [state.vcen, vseq[0]], color = '#aaa', linestyle=lss[k % 4], zorder=-10)
+            ax_sp.plot([0, iseq[-1]], [state.vcen, vseq[-1]], color = '#aaa', linestyle=lss[k % 4], zorder=-10)
 
         if state.state[1] == '1':
             imseq = state.im0 + state.km * ts
@@ -102,6 +103,9 @@ def plot(ss, iter=None, fig=None, axes=None, show=True, filename=None, highlight
     if highlight:
         ax_i.axhline(ss[0].i0, alpha=.5, c='#f00', linestyle='dashed')
         ax_i.axhline(ss[-1].i1, alpha=.5, c='#0f0', linestyle='dashdot')
+    if sphlines is not None:
+        for sphline in sphlines:
+            ax_sp.axhline(sphline, alpha=.5, c='#06a', linestyle='dashed', zorder=-10, linewidth=2)
 
     ax_i.set_xlim((0, t))
     ax_i.grid(True)
@@ -112,7 +116,8 @@ def plot(ss, iter=None, fig=None, axes=None, show=True, filename=None, highlight
     ax_v.grid(True)
     ax_v.set_ylabel('voltages')
     ax_v.set_xlabel('time')
-    ax_sp.legend()
+    if splegends:
+        ax_sp.legend()
     ax_sp.grid(True)
     ax_sp.set_xlabel('current')
     ax_sp.set_ylabel('voltage')

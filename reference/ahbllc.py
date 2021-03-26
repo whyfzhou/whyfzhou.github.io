@@ -288,7 +288,7 @@ def state_l0(i0, v0, vhb0, im0, ckt, con):
 #                              vcen=vcen, vout=vout, km=0) # yapf: disable
 
 
-def state_h0(i0, v0, vhb0, im0, ckt, con):
+def state_h0_naive(i0, v0, vhb0, im0, ckt, con):
     """Sub-state of:
     h - high-side device on,
     0 - output rectifier off.
@@ -323,6 +323,96 @@ def state_h0(i0, v0, vhb0, im0, ckt, con):
     else:
         # 0 = r * cos(w * t + phi) / z, w * t + phi = -pi / 2
         dt = ((-math.pi / 2 - phi) % (2 * math.pi)) / w
+    i1 = r * math.cos(w * dt + phi) / z
+    v1 = r * math.sin(w * dt + phi) + vcen
+
+    next_state = state_c0
+    return next_state, State(state='h0', dt=dt,
+                             i0=i0, v0=v0, vhb0=vhb0, im0=i0,
+                             i1=i1, v1=v1, vhb1=vhb0, im1=i1,
+                             r=r, phi=phi, w=w, z=z,
+                             cr=cr, chb=chb,
+                             vcen=vcen, vout=vout, km=0) # yapf: disable
+
+
+def state_h0(i0, v0, vhb0, im0, ckt, con):
+    """Sub-state of:
+    h - high-side device on,
+    0 - output rectifier off.
+
+    Exit criteria: high-side turned off when v reaches voff
+    """
+    del vhb0, im0
+    dvoff = con
+
+    chb = math.inf
+    cr = ckt.cr
+    ctot = 1 / (1 / cr + 1 / chb)
+    ltot = ckt.lr + ckt.lm
+    w = (ltot * ctot)**-.5
+    z = (ltot / ctot)**.5
+
+    vhb0 = ckt.vbus
+    vout = 0
+    vcen = vhb0 + vout
+    r = math.hypot(v0 - vcen, i0 * z)
+    phi = math.atan2(v0 - vcen, i0 * z)
+    # i = r * cos(w * t + phi) / z
+    # v = r * sin(w * t + phi) + vcen
+    # vhb = vbus
+    # im = i
+
+    slope = 40 / 10e-6
+    if i0 == 0:
+        # v0 + dvoff - slope * t == r * sin(w * t + phi) + vcen
+        dt = nsolve(lambda t: v0 + dvoff - slope * t - r * math.sin(w * t + phi) - vcen, 0, math.pi / w)
+        # dt = min((math.asin((v0 + dvoff - vcen) / r) - phi) % (2 * math.pi),
+        #          (math.pi - math.asin((v0 + dvoff - vcen) / r) - phi) % (2 * math.pi)) / w
+    else:
+        # 0 = r * cos(w * t + phi) / z, w * t + phi = -pi / 2
+        dt = ((-math.pi / 2 - phi) % (2 * math.pi)) / w
+    i1 = r * math.cos(w * dt + phi) / z
+    v1 = r * math.sin(w * dt + phi) + vcen
+
+    next_state = state_c0
+    return next_state, State(state='h0', dt=dt,
+                             i0=i0, v0=v0, vhb0=vhb0, im0=i0,
+                             i1=i1, v1=v1, vhb1=vhb0, im1=i1,
+                             r=r, phi=phi, w=w, z=z,
+                             cr=cr, chb=chb,
+                             vcen=vcen, vout=vout, km=0) # yapf: disable
+
+
+def state_h0_whatever(i0, v0, vhb0, im0, ckt, con):
+    """Sub-state of:
+    h - high-side device on,
+    0 - output rectifier off.
+
+    Exit criteria: high-side turned off when v reaches voff
+    """
+    del vhb0, im0
+    dvoff = con
+
+    chb = math.inf
+    cr = ckt.cr
+    ctot = 1 / (1 / cr + 1 / chb)
+    ltot = ckt.lr + ckt.lm
+    w = (ltot * ctot)**-.5
+    z = (ltot / ctot)**.5
+
+    vhb0 = ckt.vbus
+    vout = 0
+    vcen = vhb0 + vout
+    r = math.hypot(v0 - vcen, i0 * z)
+    phi = math.atan2(v0 - vcen, i0 * z)
+    # i = r * cos(w * t + phi) / z
+    # v = r * sin(w * t + phi) + vcen
+    # vhb = vbus
+    # im = i
+
+    assert -r <= v0 + dvoff - vcen <= r
+    dt = min((math.asin((v0 + dvoff - vcen) / r) - phi) % (2 * math.pi),
+                (math.pi - math.asin((v0 + dvoff - vcen) / r) - phi) % (2 * math.pi)) / w
     i1 = r * math.cos(w * dt + phi) / z
     v1 = r * math.sin(w * dt + phi) + vcen
 
@@ -569,6 +659,48 @@ def sim(v0, ckt, con):
     _, hs_on2 = _sim_phase(state_h0, active, ls_off[-1].i1, ls_off[-1].v1, ls_off[-1].vhb1, ls_off[-1].im1, ckt, None)
 
     return hs_on2[-1].v1 - v0, hs_on + hs_off + ls_on + ls_off + hs_on2
+
+
+def sim_dv(i0, v0, ckt, con):
+    commutating = lambda s: s in {state_c0, state_c1}
+    active = lambda s: s not in {state_c0, state_c1}
+
+    def max_dv(i0, v0):
+        l = ckt.lr + ckt.lm
+        c = 1 / (1 / ckt.cr + 1 / ckt.chb)
+        z = (l / c)**.5
+        r = math.hypot(v0, i0 * z)
+        phi = math.atan2(v0, i0 * z)
+        return r * (1 + math.sin(phi))
+
+    def eq_zvon(t):
+        _, ls_on = _sim_phase(ls_on_inf, active, hs_off[-1].i1, hs_off[-1].v1, hs_off[-1].vhb1, hs_off[-1].im1, ckt, t)
+        return max_dv(ls_on[-1].i1, ls_on[-1].v1) - (1 + ckt.chb / ckt.cr) * ckt.vbus
+
+    dvoff, t12min = con
+    vhb0 = ckt.vbus
+
+    # high-side on phase
+    nsf, hs_on = _sim_phase(state_h0_whatever, active, i0, v0, vhb0, i0, ckt, dvoff)
+
+    # high-side off phase
+    ls_on_inf, hs_off = _sim_phase(nsf, commutating, hs_on[-1].i1, hs_on[-1].v1, hs_on[-1].vhb1, hs_on[-1].im1, ckt, None)
+
+    # low-side on phase
+    _, ls_on = _sim_phase(ls_on_inf, active, hs_off[-1].i1, hs_off[-1].v1, hs_off[-1].vhb1, hs_off[-1].im1, ckt, t12min)
+    if max_dv(ls_on[-1].i1, ls_on[-1].v1) < (1 + ckt.chb / ckt.cr) * ckt.vbus:
+        t12max = (math.pi - ls_on[-1].phi) / ls_on[-1].w
+        if t12min < t12max:
+            if 0 < eq_zvon(t12max):
+                t12_zvon = nsolve(eq_zvon, t12min, t12max)
+            else:
+                t12_zvon = t12max
+            _, ls_on = _sim_phase(ls_on_inf, active, hs_off[-1].i1, hs_off[-1].v1, hs_off[-1].vhb1, hs_off[-1].im1, ckt, t12_zvon)
+
+    # low-side off phase
+    _, ls_off = _sim_phase(state_c0, commutating, ls_on[-1].i1, ls_on[-1].v1, ls_on[-1].vhb1, ls_on[-1].im1, ckt, None)
+
+    return (ls_off[-1].i1 - i0,  ls_off[-1].v1 - v0), hs_on + hs_off + ls_on + ls_off
 
 
 # def sim(i0, ckt, con):
