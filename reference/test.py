@@ -104,6 +104,36 @@ def test7():
     plt.close(fig)
 
 
+def test8():
+    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
+    con = .4
+    v0 = 270
+    sss = []
+    for _ in range(100):
+        _, ss = ahbllc.sim(v0, ckt, (con, 500e-9))
+        v0 = ss[-1].v1
+        print(f'v0 = {fmt(ss[0].v0)}V, actual dvoff = {fmt(ss[0].v1 - ss[0].v0, 4)}V')
+        sss += ss
+    fig, *_ = plothelper.plot(sss, show=True, sphlines=[ckt.vout / ckt.lm * (ckt.lr + ckt.lm)],
+                            spradii=True, splegends=False)
+    plt.close(fig)
+
+
+def test9():
+    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=20, chb=500e-12)
+    con = 2500e-9
+    v0 = nsolve(lambda v: ahbllc.sim(v, ckt, (con, 500e-9))[0], -ckt.vbus, ckt.vout / ckt.lm * (ckt.lr + ckt.lm))
+    _, ss = ahbllc.sim(v0, ckt, (con, 500e-9))
+    fig, *_ = plothelper.plot(ss, show=True)
+    ev = ahbllc.evaluate_switching_period(ss)
+    print(ev.set_circuit(ckt))
+    plt.close(fig)
+    # for con in np.arange(1e-6, 4e-6, 1e-6):
+    #     v0 = nsolve(lambda v: ahbllc.sim(v, ckt, (con, 500e-9))[0], -ckt.vbus, ckt.vout / ckt.lm * (ckt.lr + ckt.lm))
+    #     _, ss = ahbllc.sim(v0, ckt, (con, 500e-9))
+    #     fig, *_ = plothelper.plot(ss, show=True)
+    #     plt.close(fig)
+
+
 if __name__ == '__main__':
-    test6()
-    test7()
+    test9()
