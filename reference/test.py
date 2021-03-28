@@ -30,13 +30,13 @@ def test2():
 
 def test3():
     ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
-    dvoff = 12
-    # dv, ss = ahbllc.sim(161, ckt, (dvoff, 500e-9))
+    vinc = 12
+    # dv, ss = ahbllc.sim(161, ckt, (dvoff, 500e-9), constr=ahbllc.state_h0_vinc)
     # print(f'v0 = {fmt(161)}V ==> dv = {fmt(dv, 5)}V')
     # plothelper.plot(ss, show=True)
     for vv in range(333490, 333500, 1):
         v0 = vv / 1000
-        dv, ss = ahbllc.sim(v0, ckt, (dvoff, 500e-9))
+        dv, ss = ahbllc.sim(v0, ckt, (vinc, 500e-9), constr=ahbllc.state_h0_vinc)
         print(f'v0 = {fmt(v0, 6)}V ==> dv = {fmt(dv, 5)}V')
         fig, *_ = plothelper.plot(ss, show=False, filename='{:0>10}'.format(f'{int(v0 * 1000):_}'),
                                   sphlines=[ckt.vout / ckt.lm * (ckt.lr + ckt.lm)])
@@ -44,12 +44,13 @@ def test3():
 
 
 def test4():
+    # vinc 控制的不稳定性
     ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
-    dvoff = 12
+    vinc = 12
     v0 = 333.496
     sss = []
     for _ in range(100):
-        _, ss = ahbllc.sim(v0, ckt, (dvoff, 500e-9))
+        _, ss = ahbllc.sim(v0, ckt, (vinc, 500e-9), constr=ahbllc.state_h0_vinc)
         v0 = ss[-1].v1
         sss += ss
     fig, *_ = plothelper.plot(sss, show=True, sphlines=[ckt.vout / ckt.lm * (ckt.lr + ckt.lm)],
@@ -58,12 +59,13 @@ def test4():
 
 
 def test5():
+    # vinc 控制的不稳定性
     ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
-    dvoff = 49
+    vinc = 49
     v0 = 287
     sss = []
     for _ in range(100):
-        _, ss = ahbllc.sim(v0, ckt, (dvoff, 500e-9))
+        _, ss = ahbllc.sim(v0, ckt, (vinc, 500e-9), constr=ahbllc.state_h0_vinc)
         v0 = ss[-1].v1
         print(f'v0 = {fmt(ss[0].v0)}V, actual dvoff = {fmt(ss[0].v1 - ss[0].v0, 4)}V')
         sss += ss
@@ -73,13 +75,14 @@ def test5():
 
 
 def test6():
+    # 用 dvoff 控制，从随意给定的初始值开始仿真，取稳定后的几个状态做图
     ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
     dvoff = 1
     i0 = -.5
     v0 = 272
     sss = []
     for _ in range(500):
-        _, ss = ahbllc.sim_dv(i0, v0, ckt, (dvoff, 500e-9))
+        _, ss = ahbllc.sim_dvoff(i0, v0, ckt, (dvoff, 500e-9))
         i0, v0 = ss[-1].i1, ss[-1].v1
         sss += ss
     fig, *_ = plothelper.plot(sss[-30:], show=True, sphlines=[ckt.vout / ckt.lm * (ckt.lr + ckt.lm)],
@@ -89,16 +92,17 @@ def test6():
 
 
 def test7():
+    # 用 dvoff 控制，尝试用 scipy.optimize.minimize 直接解起始点位置
     ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=80, chb=500e-12)
     dvoff = 1
     i0 = -.499
     v0 = 336.75
-    eq = lambda x: math.hypot(*ahbllc.sim_dv(x[0], x[1], ckt, (dvoff, 500e-9))[0])
+    eq = lambda x: math.hypot(*ahbllc.sim_dvoff(x[0], x[1], ckt, (dvoff, 500e-9))[0])
     res = minimize(eq, (i0, v0), method='L-BFGS-B')
     print(res)
     print(eq((-0.49902207045580427, 336.75073812079916)))
     i0, v0 = res.x
-    _, ss = ahbllc.sim_dv(i0, v0, ckt, (dvoff, 500e-9))
+    _, ss = ahbllc.sim_dvoff(i0, v0, ckt, (dvoff, 500e-9))
     fig, *_ = plothelper.plot(ss, show=True,
                               sphlines=[ckt.vout / ckt.lm * (ckt.lr + ckt.lm)])
     plt.close(fig)
@@ -110,7 +114,7 @@ def test8():
     v0 = 270
     sss = []
     for _ in range(100):
-        _, ss = ahbllc.sim(v0, ckt, (con, 500e-9))
+        _, ss = ahbllc.sim(v0, ckt, (con, 500e-9), constr=ahbllc.state_h0_cpm)
         v0 = ss[-1].v1
         print(f'v0 = {fmt(ss[0].v0)}V, actual dvoff = {fmt(ss[0].v1 - ss[0].v0, 4)}V')
         sss += ss

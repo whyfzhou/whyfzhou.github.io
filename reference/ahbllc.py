@@ -417,7 +417,7 @@ def state_h0_tfwd(i0, v0, vhb0, im0, ckt, con, state_func_list):
     # vhb = vbus
     # im = i
 
-    if i0 < 0:
+    if dt is None:
         # 0 = r * cos(w * t + phi) / z, w * t + phi = -pi / 2
         dt = ((-math.pi / 2 - phi) % (2 * math.pi)) / w
     i1 = r * math.cos(w * dt + phi) / z
@@ -715,11 +715,13 @@ def _sim_phase(isf, cond, i0, v0, vhb0, im0, ckt, con, sfl):
     return nsf, states
 
 
-def sim(v0, ckt, con):
+def sim(v0, ckt, con, constr=None):
     sfl = dict(state_l1=state_l1, state_l0=state_l0, state_h0=state_h0_tfwd, state_c0=state_c0, state_c1=state_c1)
+    if constr is not None:
+        sfl['state_h0'] = constr
     assert v0 < ckt.vbus
-    commutating = lambda s: s in {state_c0, state_c1}
-    active = lambda s: s not in {state_c0, state_c1}
+    commutating = lambda s: s in {sfl['state_c0'], sfl['state_c1']}
+    active = lambda s: s not in {sfl['state_c0'], sfl['state_c1']}
 
     def max_dv(i0, v0):
         l = ckt.lr + ckt.lm
@@ -733,12 +735,12 @@ def sim(v0, ckt, con):
         _, ls_on = _sim_phase(ls_on_inf, active, hs_off[-1].i1, hs_off[-1].v1, hs_off[-1].vhb1, hs_off[-1].im1, ckt, t, sfl)
         return max_dv(ls_on[-1].i1, ls_on[-1].v1) - (1 + ckt.chb / ckt.cr) * ckt.vbus
 
-    dvoff, t12min = con
+    conv, t12min = con
     i0 = 0
     vhb0 = ckt.vbus
 
     # high-side on phase
-    nsf, hs_on = _sim_phase(state_h0_tfwd, active, i0, v0, vhb0, i0, ckt, dvoff, sfl)
+    nsf, hs_on = _sim_phase(sfl['state_h0'], active, i0, v0, vhb0, i0, ckt, conv, sfl)
 
     # high-side off phase
     ls_on_inf, hs_off = _sim_phase(nsf, commutating, hs_on[-1].i1, hs_on[-1].v1, hs_on[-1].vhb1, hs_on[-1].im1, ckt, None, sfl)
@@ -755,10 +757,10 @@ def sim(v0, ckt, con):
             _, ls_on = _sim_phase(ls_on_inf, active, hs_off[-1].i1, hs_off[-1].v1, hs_off[-1].vhb1, hs_off[-1].im1, ckt, t12_zvon, sfl)
 
     # low-side off phase
-    _, ls_off = _sim_phase(state_c0, commutating, ls_on[-1].i1, ls_on[-1].v1, ls_on[-1].vhb1, ls_on[-1].im1, ckt, None, sfl)
+    _, ls_off = _sim_phase(sfl['state_c0'], commutating, ls_on[-1].i1, ls_on[-1].v1, ls_on[-1].vhb1, ls_on[-1].im1, ckt, None, sfl)
 
     # high-side on phase
-    _, hs_on2 = _sim_phase(state_h0_tfwd, active, ls_off[-1].i1, ls_off[-1].v1, ls_off[-1].vhb1, ls_off[-1].im1, ckt, None, sfl)
+    _, hs_on2 = _sim_phase(sfl['state_h0'], active, ls_off[-1].i1, ls_off[-1].v1, ls_off[-1].vhb1, ls_off[-1].im1, ckt, None, sfl)
 
     return hs_on2[-1].v1 - v0, hs_on + hs_off + ls_on + ls_off + hs_on2
 
@@ -780,8 +782,8 @@ def sim_dvoff(i0, v0, ckt, con):
     :rtype: Tuple[residues, states] where residues::Tuple[float, float], states::State
     """
     sfl = dict(state_l1=state_l1, state_l0=state_l0, state_h0=state_h0_dvoff, state_c0=state_c0, state_c1=state_c1)
-    commutating = lambda s: s in {state_c0, state_c1}
-    active = lambda s: s not in {state_c0, state_c1}
+    commutating = lambda s: s in {sfl['state_c0'], sfl['state_c1']}
+    active = lambda s: s not in {sfl['state_c0'], sfl['state_c1']}
 
     def max_dv(i0, v0):
         l = ckt.lr + ckt.lm
@@ -822,9 +824,9 @@ def sim_dvoff(i0, v0, ckt, con):
 
 
 def sim_voff(i0, ckt, con):
-    commutating = lambda s: s in {state_c0, state_c1}
-    active = lambda s: s not in {state_c0, state_c1}
     sfl = dict(state_l1=state_l1, state_l0=state_l0, state_h0=state_h0_voff, state_c0=state_c0, state_c1=state_c1)
+    commutating = lambda s: s in {sfl['state_c0'], sfl['state_c1']}
+    active = lambda s: s not in {sfl['state_c0'], sfl['state_c1']}
 
     def eq_zvon(t, hs_off_fins):
         # from the end moment of the high-side turning-off state (high- to low-side commutation finishes),
