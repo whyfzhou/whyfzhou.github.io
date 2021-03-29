@@ -142,7 +142,7 @@ class State:
         return self.__dict__.get(key, 0)
 
 
-def state_l1(i0, v0, vhb0, im0, ckt, con, state_func_list):
+def state_l1(i0, v0, vhb0, im0, ckt, con):
     """Sub-state of:
     l - low-side device on,
     1 - output rectifier on.
@@ -178,7 +178,7 @@ def state_l1(i0, v0, vhb0, im0, ckt, con, state_func_list):
         dt = ta
     i1 = r * math.cos(w * dt + phi) / z
     v1 = r * math.sin(w * dt + phi) + vout
-    next_state = state_func_list['state_l0']
+    next_state = state_l0
     return next_state, State(state='l1', dt=dt,
                              i0=i0, v0=v0, vhb0=vhb0, im0=im0,
                              i1=i1, v1=v1, vhb1=vhb0, im1=i1,

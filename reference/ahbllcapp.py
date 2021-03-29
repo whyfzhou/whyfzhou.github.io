@@ -3,6 +3,7 @@ import itertools
 from scipy.optimize import ridder as nsolve
 import ahbllc
 import plothelper
+import matplotlib.pyplot as plt
 
 
 def evaluate_operating_point_with_tolerance(pout, ckt, t12min=500e-9, fswmax=100e3):
@@ -16,12 +17,21 @@ def evaluate_operating_point_with_tolerance(pout, ckt, t12min=500e-9, fswmax=100
     vbuss = minmax(ckt.vbus, ckt.vbus_rtol)
     vload = ckt.vload
 
+    first = True
+    tsw = 0
     sss = []
     evs = []
     for lr, lm, cr, chb, nps, vbus in itertools.product(lrs, lms, crs, chbs, npss, vbuss):
         vout = nps * vload
         cc = ahbllc.AHBLLC(lr=lr, lm=lm, cr=cr, vbus=vbus, vout=vout, chb=chb)
         _, ss, ev = ahbllc.evaluate_operating_point(pout, cc, t12min, fswmax)
+        if ev.tsw > tsw:
+            tsw = ev.tsw
+        if first:
+            fig, axes = plothelper.plot(ss, show=False, spradii=False, splegends=False)
+            first = False
+        else:
+            plothelper.plot(ss, fig=fig, axes=axes, show=False, spradii=False, splegends=False)
         ev.set_circuit(cc)
         sss.append(ss)
         evs.append(ev)
@@ -29,3 +39,5 @@ def evaluate_operating_point_with_tolerance(pout, ckt, t12min=500e-9, fswmax=100
         print(ev)
         print('*' * 120)
         print()
+    axes[0].set_xlim((0, tsw))
+    plt.show()
