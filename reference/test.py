@@ -34,8 +34,8 @@ def test_case_02():
 
 
 def test_case_03():
-    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=20, chb=500e-12)
-    tf, ss, ev = ahbllc.evaluate_operating_point(40, ckt)
+    ckt = ahbllc.AHBLLCTrafo(lr=31.5e-6, lm=945e-6, cr=49.4e-9, nps=1, vbus=390, vload=330, chb=630e-12)
+    tf, ss, ev, pmax = ahbllc.evaluate_operating_point(133, ckt)
     print(f'Control variable: high-side forward time: {fmt(tf, 4)}s')
     ev = ahbllc.evaluate_switching_period(ss)
     print(ev.set_circuit(ckt))
@@ -44,8 +44,9 @@ def test_case_03():
 
 
 def test_case_04():
-    ckt = ahbllc.AHBLLCTrafo(lr=100e-6, lm=1000e-6, cr=47e-9, nps=2, vbus=410, vload=150, chb=600e-12)
-    tf, ss, ev = ahbllc.evaluate_operating_point(pout=165, ckt=ckt)
+    ckt = ahbllc.AHBLLC(lr=57e-6, lm=855e-6, cr=44.6e-9, vbus=390, vout=330, chb=570e-12)
+    ss = ahbllc.find_steady_state(500e-9, ckt)
+    tf, ss, ev, pmax = ahbllc.evaluate_operating_point(pout=150, ckt=ckt)
     print(f'Control variable: high-side forward time: {fmt(tf, 4)}s')
     ev = ahbllc.evaluate_switching_period(ss)
     print(ev.set_circuit(ckt))
@@ -54,8 +55,8 @@ def test_case_04():
 
 
 def test_case_05():
-    ckt = ahbllc.AHBLLCTrafo(lr=25e-6, lm=1225e-6, cr=39e-9, nps=4.3, vbus=410, vload=40, chb=500e-12)
-    ahbllcapp.evaluate_operating_point_with_tolerance(pout=40, ckt=ckt)  # TODO: 20V/20W 死循环
+    ckt = ahbllc.AHBLLCTrafo(lr=30e-6, lm=900e-6, cr=47e-9, nps=2, vbus=410, vload=150, chb=600e-12)
+    ahbllcapp.evaluate_operating_point_with_tolerance(pout=150, ckt=ckt)  # TODO: 20V/20W 死循环
 
 
 if __name__ == '__main__':

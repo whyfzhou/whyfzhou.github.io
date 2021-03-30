@@ -10,6 +10,7 @@ MINIMUM_CURRENT = 1e-7
 MAXIMUM_COMMUTATION_TIME = 600e-9
 MINIMUM_HIGH_SIDE_ON_TIME = 100e-9
 MINIMUM_FORWARD_TIME = .5e-6
+MAXIMUM_T12 = 20e-6
 
 
 class AHBLLC:
@@ -105,7 +106,7 @@ class Evaluation:
                 s += f'{"Idc,load":>28} = {fmt(iload, 3)}A\n'
                 s += f'{"Vdc,load":>28} = {fmt(self.ckt.vload, 3)}V\n'
             else:
-                s += f'{"Idc,out":>28} = {fmt(self.iout, 3)}V\n'
+                s += f'{"Idc,out":>28} = {fmt(self.iout, 3)}A\n'
                 s += f'{"Vdc,out":>28} = {fmt(self.ckt.vout, 3)}V\n'
         return s
 
@@ -508,7 +509,7 @@ def sim(v0, ckt, con):
     _, ls_on = _sim_phase(ls_on_inf, active, hs_off[-1].i1, hs_off[-1].v1, hs_off[-1].vhb1, hs_off[-1].im1, ckt, t12min)
     if max_dv(ls_on[-1].i1, ls_on[-1].v1) < (1 + ckt.chb / ckt.cr) * ckt.vbus:
         t12max = (math.pi - ls_on[-1].phi) / ls_on[-1].w
-        if t12min < t12max:
+        if t12min < t12max <= MAXIMUM_T12:
             if 0 < eq_zvon(t12max):
                 t12_zvon = nsolve(eq_zvon, t12min, t12max)
             else:
@@ -586,7 +587,9 @@ def evaluate_switching_period(states):
 
 
 def find_steady_state(tfwd, ckt, t12min=500e-9, fswmax=100e3):
+    # print(f'finding steady-state for tfwd={fmt(tfwd)}s...')
     def eq(v0):
+        # print(f'  trying from v0={fmt(v0, 4)}V')
         dv, ss = sim(v0, ckt, (tfwd, t12min))
         fsw = 1 / sum(s.dt for s in ss)
         if fsw > fswmax:
@@ -609,12 +612,15 @@ def find_steady_state(tfwd, ckt, t12min=500e-9, fswmax=100e3):
 
 
 def evaluate_operating_point(pout, ckt, t12min=500e-9, fswmax=100e3):
-    tfwdmax = math.pi / 2 / ((ckt.lr + ckt.lm) * ckt.cr)**-.5
-    pmax = evaluate_switching_period(find_steady_state(tfwdmax, ckt, t12min, fswmax)).iout * ckt.vout
+    # tfwdmax = math.pi / 2 / ((ckt.lr + ckt.lm) * ckt.cr)**-.5
+    vdion = ckt.vout / ckt.lm * (ckt.lr + ckt.lm)
+    tfwdmax = (math.pi / 2 + math.asin(vdion / (ckt.vbus + vdion))) / ((ckt.lr + ckt.lm) * ckt.cr)**-.5
+    sspmax = find_steady_state(tfwdmax, ckt, t12min, fswmax)
+    pmax = evaluate_switching_period(sspmax).iout * ckt.vout
     if 0 < pout <= pmax:
         tf = nsolve(lambda t: evaluate_switching_period(find_steady_state(t, ckt, t12min, fswmax)).iout * ckt.vout - pout,
                     MINIMUM_FORWARD_TIME, tfwdmax)
         ss = find_steady_state(tf, ckt, t12min, fswmax)
-        return tf, ss, evaluate_switching_period(ss)
+        return tf, ss, evaluate_switching_period(ss), pmax
     else:
-        return 0, [State()], Evaluation()
+        return 0, [State()], Evaluation(), pmax
