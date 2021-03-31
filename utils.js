@@ -73,6 +73,10 @@ function mod(a, b) {
   return c;
 }
 
+function parg(angle) {
+  return mod(angle, 2 * Math.PI);
+}
+
 function ridder(eq, x0, y0, x1, y1, xtol, ytol, maxIter) {
   let ans = Number.NaN;
 
