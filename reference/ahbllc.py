@@ -11,6 +11,7 @@ MAXIMUM_COMMUTATION_TIME = 600e-9
 MINIMUM_HIGH_SIDE_ON_TIME = 100e-9
 MINIMUM_FORWARD_TIME = .5e-6
 MAXIMUM_T12 = 20e-6
+MINIMUM_DETECTABLE_DIODE_ON_TIME = 500e-9
 
 
 class AHBLLC:
@@ -476,12 +477,39 @@ def state_c1(i0, v0, vhb0, im0, ckt, con):
                              vcen=vcen, vout=vout, km=-km) # yapf: disable
 
 
-def _sim_phase(isf, cond, i0, v0, vhb0, im0, ckt, con):
+def _sim_phase_simple(isf, cond, i0, v0, vhb0, im0, ckt, con):
     nsf, s = isf(i0, v0, vhb0, im0, ckt, con)
     states = [s]
     while cond(nsf):
         nsf, s = nsf(s.i1, s.v1, s.vhb1, s.im1, ckt, con)
         states.append(s)
+    return nsf, states
+
+
+def _sim_phase(isf, cond, i0, v0, vhb0, im0, ckt, con):
+    is_ls_on_phase = isf in {state_l0, state_l1} and con is not None
+    if is_ls_on_phase:
+        t12given = con
+        t12hist = []
+
+    nsf, s = isf(i0, v0, vhb0, im0, ckt, con)
+
+    states = [s]
+    while cond(nsf):
+        csf = nsf
+        nsf, s = csf(s.i1, s.v1, s.vhb1, s.im1, ckt, con)
+
+        if is_ls_on_phase:
+            if csf is state_l0:
+                t12hist.append(s.dt)
+            else:
+                if s.dt < MINIMUM_DETECTABLE_DIODE_ON_TIME:  # l1 duration too short
+                    con = t12given - sum(t12hist)
+                else:
+                    t12hist = []
+                    con = t12given
+        states.append(s)
+
     return nsf, states
 
 
@@ -567,9 +595,10 @@ def evaluate_switching_period(states):
             i2acc_out -= 2 * j * im0 / state.w * (math.sin(phi1) - math.sin(state.phi))
             i2acc_out -= 2 * j * km / state.w**2 * (math.cos(phi1) - math.cos(state.phi) + state.w * state.dt * math.sin(phi1))
             i2acc_out += im0**2 * state.dt + km * state.dt**2 + km**2 * state.dt**3 / 3
-            if state.phi <= math.pi <= phi1:
-                if im0 + km * (math.pi - state.phi) / state.w - j * math.cos(math.pi) > imax_out:
-                    imax_out = im0 + km * (math.pi - state.phi) / state.w - j * math.cos(math.pi)
+            th0 = math.pi - math.asin(-km / (j * state.w))  # iout max's out at math.pi - theta, where theta is a small angle
+            if state.phi <= th0 <= phi1:
+                if im0 + km * (th0 - state.phi) / state.w - j * math.cos(th0) > imax_out:
+                    imax_out = im0 + km * (th0 - state.phi) / state.w - j * math.cos(th0)
             else:
                 if im0 + km * (phi1 - state.phi) / state.w - j * math.cos(phi1) > imax_out:
                     imax_out = im0 + km * (phi1 - state.phi) / state.w - j * math.cos(phi1)
