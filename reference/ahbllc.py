@@ -61,7 +61,9 @@ class Evaluation:
         self.operation = kwargs.get('operation', 'unknown')
         self.tsw = kwargs.get('tsw', 0)
         self.irms = kwargs.get('irms', 0)
+        self.irms_out = kwargs.get('irms_out', 0)
         self.imax = kwargs.get('imax', 0)
+        self.imax_out = kwargs.get('imax_out', 0)
         self.vavg = kwargs.get('vavg', 0)
         self.vrms = kwargs.get('vrms', 0)
         self.iout = kwargs.get('iout', 0)
@@ -92,6 +94,8 @@ class Evaluation:
         s += f'{"δd = T_diode_on / T_ls_on":>28} ≈ {self.t_diode_on / self.tsw:.1%}\n'
         s += f'{"Irms,pri":>28} = {fmt(self.irms, 3)}A\n'
         s += f'{"Imax,pri":>28} = {fmt(self.imax, 3)}A\n'
+        s += f'{"Irms,out":>28} = {fmt(self.irms_out, 3)}A\n'
+        s += f'{"Imax,out":>28} = {fmt(self.imax_out, 3)}A\n'
         s += f'{"Vdc,r":>28} = {fmt(self.vavg, 3)}V\n'
         s += f'{"Vacrms,r":>28} = {fmt((self.vrms**2 - self.vavg**2)**.5, 3)}V\n'
         if self.ckt is None:
@@ -105,6 +109,8 @@ class Evaluation:
                 iload = pout / self.ckt.vload
                 s += f'{"Idc,load":>28} = {fmt(iload, 3)}A\n'
                 s += f'{"Vdc,load":>28} = {fmt(self.ckt.vload, 3)}V\n'
+                s += f'{"Irms,diode":>28} = {fmt(self.irms_out * self.ckt.nps, 3)}A\n'
+                s += f'{"Imax,diode":>28} = {fmt(self.imax_out * self.ckt.nps, 3)}A\n'
             else:
                 s += f'{"Idc,out":>28} = {fmt(self.iout, 3)}A\n'
                 s += f'{"Vdc,out":>28} = {fmt(self.ckt.vout, 3)}V\n'
@@ -533,7 +539,7 @@ def evaluate_switching_period(states):
         operation = 'dynamics'
 
     tsw = 0
-    qout = i2acc = imax = vacc = v2acc = 0
+    qout = i2acc = i2acc_out = imax = imax_out = vacc = v2acc = 0
     t_diode_on = t_hs_off = t_ls_on = t_ls_off = t_hs_on = 0
     for state in states:
         tsw += state.dt
@@ -553,6 +559,20 @@ def evaluate_switching_period(states):
             tr = (state.im0 + state.im1) * state.dt / 2
             sc = state.cr * (state.v0 - state.v1)
             qout += tr + sc
+            km = state.km
+            im0 = state.im0
+            phi1 = state.w * state.dt + state.phi
+            i2acc_out += j**2 * state.dt / 2
+            i2acc_out += j**2 / (4 * state.w) * (math.sin(2 * phi1) - math.sin(2 * state.phi))
+            i2acc_out -= 2 * j * im0 / state.w * (math.sin(phi1) - math.sin(state.phi))
+            i2acc_out -= 2 * j * km / state.w**2 * (math.cos(phi1) - math.cos(state.phi) + state.w * state.dt * math.sin(phi1))
+            i2acc_out += im0**2 * state.dt + km * state.dt**2 + km**2 * state.dt**3 / 3
+            if state.phi <= math.pi <= phi1:
+                if im0 + km * (math.pi - state.phi) / state.w - j * math.cos(math.pi) > imax_out:
+                    imax_out = im0 + km * (math.pi - state.phi) / state.w - j * math.cos(math.pi)
+            else:
+                if im0 + km * (phi1 - state.phi) / state.w - j * math.cos(phi1) > imax_out:
+                    imax_out = im0 + km * (phi1 - state.phi) / state.w - j * math.cos(phi1)
         if state.state.startswith('c'):
             if state.vhb0 > state.vhb1:
                 t_hs_off += state.dt
@@ -566,6 +586,7 @@ def evaluate_switching_period(states):
             imax = j
 
     irms = (i2acc / tsw)**.5
+    irms_out = (i2acc_out / tsw)**.5
     vavg = vacc / tsw
     vrms = (v2acc / tsw)**.5
     iout = qout / tsw
@@ -574,7 +595,9 @@ def evaluate_switching_period(states):
     return Evaluation(operation=operation,
                       tsw=tsw,
                       irms=irms,
+                      irms_out=irms_out,
                       imax=imax,
+                      imax_out=imax_out,
                       vavg=vavg,
                       vrms=vrms,
                       iout=iout,
