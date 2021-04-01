@@ -214,7 +214,7 @@ function stateC0(i0, v0, vhb0, im0, ckt, con) {
       let a = Math.asin(v / -r);
       dt = Math.min(parg(a - phi), parg(Math.PI - a - phi)) / w;
     } else {
-      dt = ((-Math.PI / 2 - phi) % (2 * Math.PI)) / w;
+      dt = parg(-Math.PI / 2 - phi) / w;
     }
     nextState = stateH0;
   } else {
@@ -387,7 +387,7 @@ function simulatePhase(isf, cond, i0, v0, vhb0, im0, ckt, con) {
         t12history.push(s.dt);
       } else {
         if (s.dt < CONTROL.MINIMUM_DETECTABLE_DIODE_ON_TIME) {
-          con = t12given - t12history.reduce((x, y) => x + y)
+          con = t12given - t12history.reduce((x, y) => x + y, 0);
         } else {
           t12history = [];
           con = t12given;
@@ -427,23 +427,14 @@ function simulate(v0, ckt, con) {
   const equationZVon = (t) => {
     let hsOffLast = hsOff.slice(-1)[0];
     let lsOn = simulatePhase(
-
       lsOnIsf,
-
-           isActive,
-
+      isActive,
       hsOffLast.i1,
-
       hsOffLast.v1,
-
-          hsOffLast.vhb1,
-
-         hsOffLast.im1,
-
-        ckt,
-
-       t
-
+      hsOffLast.vhb1,
+      hsOffLast.im1,
+      ckt,
+      t
     ).slice(-1)[0];
     let lsOnLast = lsOn.slice(-1)[0];
     return maximumDv(lsOnLast.i1, lsOnLast.v1) - (1 + ckt.chb / ckt.cr) * ckt.vbus;
@@ -646,11 +637,11 @@ function findSteadyState(tfwd, ckt, t12min, fswmax) {
     let dv;
     let ss;
     [dv, ss] = simulate(v0, ckt, [tfwd, t12min]);
-    let fsw = 1 / ss.reduce((x, y) => x.dt + y.dt);
+    let fsw = 1 / ss.reduce((x, y) => x.dt + y.dt, 0);
     if (fsw > fswmax) {
       const maximumFrequencyEquation = (t12) => {
         let ss = simulate(v0, ckt, [tfwd, t12]).slice(-1)[0];
-        let fsw = 1 / ss.reduce((x, y) => x.dt + y.dt);
+        let fsw = 1 / ss.reduce((x, y) => x.dt + y.dt, 0);
         return fsw - fswmax;
       };
       let t12 = nsolve(maximumFrequencyEquation, t12min, 1 / fswmax, brent);
@@ -665,7 +656,7 @@ function findSteadyState(tfwd, ckt, t12min, fswmax) {
     (v) => voltageContinuityEquation(v)[0],
     v0min * 0.99 + v0max * 0.01,
     v0max * 0.99 + v0min * 0.01,
-    brent
+    ridder
   );
   let residue;
   let ss;
@@ -686,10 +677,11 @@ function evaluateOperatingPoint(pout, ckt, t12min, fswmax) {
     let tf = nsolve(
       (t) => evaluateSwitchingPeriod(findSteadyState(t, ckt, t12min, fswmax)).iout * ckt.vout - pout,
       CONTROL.MINIMUM_FORWARD_TIME,
-      tfwdmax
+      tfwdmax,
+      brent
     );
     let ss = findSteadyState(tf, ckt, t12min, fswmax);
-    return tf, ss, evaluateSwitchingPeriod(ss), pmax;
+    return [tf, ss, evaluateSwitchingPeriod(ss), pmax];
   } else {
     return [0, [{}], {}, pmax];
   }

@@ -108,11 +108,16 @@ function ridder(eq, x0, y0, x1, y1, xtol, ytol, maxIter) {
       return Number.NaN;
     }
   }
-  return Number.NaN;
+  if (Math.abs(x0 - x1) <= xtol) {
+    return x0;
+  } else {
+    return Number.NaN;
+  }
 }
 
 function brent(eq, x0, y0, x1, y1, xtol, ytol, maxIter) {
-  const eps = 7 / 3 - 4 / 3 - 1;
+  // const eps = 7 / 3 - 4 / 3 - 1;
+  const eps = Number.EPSILON;
 
   let lastBisection = true;
   if (Math.abs(y0) < Math.abs(y1)) {
@@ -168,7 +173,7 @@ function brent(eq, x0, y0, x1, y1, xtol, ytol, maxIter) {
     }
   }
 
-  if (numTries >= maxIter) {
+  if (numTries >= maxIter && Math.abs(x0 - x1) > xtol) {
     return Number.NaN;
   }
 
@@ -176,7 +181,7 @@ function brent(eq, x0, y0, x1, y1, xtol, ytol, maxIter) {
 }
 
 function nsolve(eq, x0, x1, solver) {
-  const maxIter = 20;
+  const maxIter = 30;
   const xtol = 1e-9;
   const ytol = 1e-9;
 
