@@ -9,12 +9,10 @@ function sample(arcs, nsample) {
   let tb = 0;
   for (let i = 0; i < arcs.length; ++i) {
     tb = ta + arcs[i].dt;
-    let currentSegment = [...t.keys()].filter(
-      (e, k) => ta <= t[k] && t[k] <= tb
-    );
-    let start = currentSegment[0];
-    let count = currentSegment.length;
-    if (Array.isArray(currentSegment) && count) {
+    let piecewiseIndices = [...t.keys()].filter((e, k) => ta <= t[k] && t[k] <= tb);
+    let start = piecewiseIndices[0];
+    let count = piecewiseIndices.length;
+    if (Array.isArray(piecewiseIndices) && count) {
       let i0 = arcs[i].i0;
       // let v0 = arcs[i].v0;
       let r = arcs[i].r;
@@ -24,26 +22,10 @@ function sample(arcs, nsample) {
       let vg = arcs[i].vg;
       let km = arcs[i].km;
       let hb = arcs[i].hb;
-      ir.splice(
-        start,
-        count,
-        ...t
-          .slice(start, start + count)
-          .map((tau) => (r * Math.cos(w * (tau - ta) + phi)) / z)
-      );
-      vr.splice(
-        start,
-        count,
-        ...t
-          .slice(start, start + count)
-          .map((tau) => vg + r * Math.sin(w * (tau - ta) + phi))
-      );
+      ir.splice(start, count, ...t.slice(start, start + count).map((tau) => (r * Math.cos(w * (tau - ta) + phi)) / z));
+      vr.splice(start, count, ...t.slice(start, start + count).map((tau) => vg + r * Math.sin(w * (tau - ta) + phi)));
       if (Math.abs(km) > 1e-9) {
-        im.splice(
-          start,
-          count,
-          ...t.slice(start, start + count).map((tau) => i0 + km * (tau - ta))
-        );
+        im.splice(start, count, ...t.slice(start, start + count).map((tau) => i0 + km * (tau - ta)));
       } else {
         im.splice(start, count, ...ir.slice(start, start + count));
       }
