@@ -561,12 +561,12 @@ function evaluateSwitchingPeriod(states) {
 
   for (state of states) {
     tsw += state.dt;
-    j = state.r / state.z;
+    let j = state.r / state.z;
     i2acc += (j ** 2 * state.dt) / 2;
     i2acc += (j ** 2 / (4 * state.w)) * (sin(2 * state.w * state.dt + 2 * state.phi) - sin(2 * state.phi));
 
-    m = state.r / (1 + state.cr / state.chb);
-    b = state.v0 / (1 + state.chb / state.cr);
+    let m = state.r / (1 + state.cr / state.chb);
+    let b = state.v0 / (1 + state.chb / state.cr);
     b += (state.vhb0 + state.vout) / (1 + state.cr / state.chb);
     vacc += (m / state.w) * (cos(state.phi) - cos(state.w * state.dt + state.phi));
     vacc += b * state.dt;
@@ -575,12 +575,42 @@ function evaluateSwitchingPeriod(states) {
     v2acc += ((2 * m * b) / state.w) * (cos(state.phi) - cos(state.w * state.dt + state.phi));
 
     if (state.state.slice(-1)[0] === "1") {
+      tDiodeOn += state.dt;
+      let tr = ((state.im0 + state.im1) * state.dt) / 2;
+      let sc = state.cr * (state.v0 - state.v1);
+      qout += tr + sc;
+      let km = state.km;
+      let im0 = state.im0;
+      let phi1 = state.w * state.dt + state.phi;
+      i2accOut += (j ** 2 * state.dt) / 2;
+      i2accOut += (j ** 2 / (4 * state.w)) * (sin(2 * phi1) - sin(2 * state.phi));
+      i2accOut -= ((2 * j * im0) / state.w) * (sin(phi1) - sin(state.phi));
+      i2accOut -= ((2 * j * km) / state.w ** 2) * (cos(phi1) - cos(state.phi) + state.w * state.dt * sin(phi1));
+      i2accOut += im0 ** 2 * state.dt + im0 * km * state.dt ** 2 + (km ** 2 * state.dt ** 3) / 3;
+      let th0 = Math.PI - Math.asin(-km / (j * state.w));
+      if (state.phi <= th0 && th0 <= phi1) {
+        if (im0 + km * ((th0 - state.phi) / state.w) - j * cos(th0) > imaxOut) {
+          imaxOut = im0 + km * ((th0 - state.phi) / state.w) - j * cos(th0);
+        }
+      } else {
+        if (im0 + km * ((phi1 - state.phi) / state.w) - j * cos(phi1) > imaxOut) {
+          imaxOut = im0 + km * ((phi1 - state.phi) / state.w) - j * cos(phi1);
+        }
+      }
     }
     if (state.state[0] === "c") {
+      if (state.vhb0 > state.vhb1) {
+        tHsOff += state.dt;
+      } else {
+        tLsOff += state.dt;
+      }
     } else if (state.state[0] === "l") {
+      tLsOn += state.dt;
     } else if (state.state[0] === "h") {
+      tHsOn += state.dt;
     }
     if (state.phi <= 0 && 0 <= state.w * state.dt + state.phi) {
+      imax = j;
     }
   }
 
@@ -645,4 +675,22 @@ function findSteadyState(tfwd, ckt, t12min, fswmax) {
     console.log(`Warning: cannot find steady-state for tfwd = ${fmt(tfwd)}s (residue = ${fmt(residue)}).`);
   }
   return ss;
+}
+
+function evaluateOperatingPoint(pout, ckt, t12min, fswmax) {
+  let vdion = (ckt.vout / ckt.lm) * (ckt.lr + ckt.lm);
+  let tfwdmax = (Math.PI / 2 + Math.asin(vdion / (ckt.vbus + vdion))) / ((ckt.lr + ckt.lm) * ckt.cr) ** -0.5;
+  let sspmax = findSteadyState(tfwdmax, ckt, t12min, fswmax);
+  let pmax = evaluateSwitchingPeriod(sspmax).iout * ckt.vout;
+  if (0 < pout && pout <= pmax) {
+    let tf = nsolve(
+      (t) => evaluateSwitchingPeriod(findSteadyState(t, ckt, t12min, fswmax)).iout * ckt.vout - pout,
+      CONTROL.MINIMUM_FORWARD_TIME,
+      tfwdmax
+    );
+    let ss = findSteadyState(tf, ckt, t12min, fswmax);
+    return tf, ss, evaluateSwitchingPeriod(ss), pmax;
+  } else {
+    return [0, [{}], {}, pmax];
+  }
 }

@@ -59,6 +59,13 @@ def test_case_05():
     ahbllcapp.evaluate_operating_point_with_tolerance(pout=150, ckt=ckt)  # TODO: 20V/20W 死循环
 
 
+def test_case_06():
+    ckt = ahbllc.AHBLLC(lr=30e-6, lm=1000e-6, cr=47e-9, chb=500e-12, vbus=410, vout=200)
+    states = ahbllc.sim(200, ckt, (2e-6, 500e-9))[-1]
+    perf = ahbllc.evaluate_switching_period(states)
+    print(perf)
+
+
 if __name__ == '__main__':
-    test_case_03()
+    test_case_06()
 
