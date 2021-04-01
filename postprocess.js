@@ -13,23 +13,69 @@ function sample(arcs, nsample) {
     let start = piecewiseIndices[0];
     let count = piecewiseIndices.length;
     if (Array.isArray(piecewiseIndices) && count) {
-      let i0 = arcs[i].i0;
-      // let v0 = arcs[i].v0;
       let r = arcs[i].r;
       let phi = arcs[i].phi;
       let w = arcs[i].w;
       let z = arcs[i].z;
       let vg = arcs[i].vg;
       let km = arcs[i].km;
-      let hb = arcs[i].hb;
-      ir.splice(start, count, ...t.slice(start, start + count).map((tau) => (r * Math.cos(w * (tau - ta) + phi)) / z));
-      vr.splice(start, count, ...t.slice(start, start + count).map((tau) => vg + r * Math.sin(w * (tau - ta) + phi)));
-      if (Math.abs(km) > 1e-9) {
-        im.splice(start, count, ...t.slice(start, start + count).map((tau) => i0 + km * (tau - ta)));
+      if ("hb" in arcs[i]) {
+        ir.splice(
+          start,
+          count,
+          ...t.slice(start, start + count).map((tau) => (r * Math.cos(w * (tau - ta) + phi)) / z)
+        );
+        if (Math.abs(km) > 1e-9) {
+          let i0 = arcs[i].i0;
+          im.splice(start, count, ...t.slice(start, start + count).map((tau) => i0 + km * (tau - ta)));
+        } else {
+          im.splice(start, count, ...ir.slice(start, start + count));
+        }
+        vr.splice(start, count, ...t.slice(start, start + count).map((tau) => vg + r * Math.sin(w * (tau - ta) + phi)));
+        let hb = arcs[i].hb;
+        vhb.splice(start, count, ...Array(count).fill(hb));
       } else {
-        im.splice(start, count, ...ir.slice(start, start + count));
+        ir.splice(
+          start,
+          count,
+          ...t.slice(start, start + count).map((tau) => (r * Math.cos(w * (tau - ta) + phi)) / z)
+        );
+        if (arcs[i].state.slice(-1)[0] === '1') {
+          let im0 = arcs[i].im0;
+          im.splice(start, count, ...t.slice(start, start + count).map((tau) => im0 + km * (tau - ta)));
+        } else {
+          im.splice(start, count, ...ir.slice(start, start + count));
+        }
+        let v0 = arcs[i].v0;
+        let vhb0 = arcs[i].vhb0;
+        let cr = arcs[i].cr;
+        let chb = arcs[i].chb;
+        let vout = arcs[i].vout;
+        vr.splice(
+          start,
+          count,
+          ...t
+            .slice(start, start + count)
+            .map(
+              (tau) =>
+                (r * Math.sin(w * (tau - ta) + phi)) / (1 + cr / chb) +
+                v0 / (1 + chb / cr) +
+                (vhb0 + vout) / (1 + cr / chb)
+            )
+        );
+        vhb.splice(
+          start,
+          count,
+          ...t
+            .slice(start, start + count)
+            .map(
+              (tau) =>
+                (-r * Math.sin(w * (tau - ta) + phi)) / (1 + chb / cr) -
+                (vout - v0) / (1 + chb / cr) +
+                vhb0 / (1 + cr / chb)
+            )
+        );
       }
-      vhb.splice(start, count, ...Array(count).fill(hb));
     }
     ta = tb;
   }

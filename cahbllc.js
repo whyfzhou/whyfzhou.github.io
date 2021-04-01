@@ -292,7 +292,7 @@ function stateC1(i0, v0, vhb0, im0, ckt, con) {
   const z = (ltot / ctot) ** 0.5;
   const km = ckt.vout / ckt.lm;
 
-  const vout = 0;
+  const vout = ckt.vout;
   const vcen = vout;
   const vcap0 = v0 - vhb0;
   const r = Math.hypot(vcap0 - vcen, i0 * z);
@@ -334,11 +334,11 @@ function stateC1(i0, v0, vhb0, im0, ckt, con) {
   let vhb1 = (-r * Math.sin(w * dt + phi)) / (1 + chb / cr) - (vout - v0) / (1 + chb / cr) + vhb0 / (1 + cr / chb);
   if (vhb1 - ckt.vbus < CONTROL.MINIMUM_VOLTAGE) {
     vhb1 = ckt.vbus;
-  } else if (Math.abs(vhb1) < CONTROL.MINIMUM_VOLTAGE) {
+  } else if (vhb1 < CONTROL.MINIMUM_VOLTAGE) {
     vhb1 = 0;
   }
   let im1 = im0 - km * dt;
-  if (Math.abs(im1 - i1) < 1e-6) {
+  if (Math.abs(im1 - i1) < CONTROL.MINIMUM_CURRENT) {
     im1 = i1;
   }
   return [
@@ -609,4 +609,40 @@ function evaluateSwitchingPeriod(states) {
     tHsOn: tHsOn,
     t12: t12,
   };
+}
+
+function findSteadyState(tfwd, ckt, t12min, fswmax) {
+  const voltageContinuityEquation = (v0) => {
+    let dv;
+    let ss;
+    [dv, ss] = simulate(v0, ckt, [tfwd, t12min]);
+    let fsw = 1 / ss.reduce((x, y) => x.dt + y.dt);
+    if (fsw > fswmax) {
+      const maximumFrequencyEquation = (t12) => {
+        let ss = simulate(v0, ckt, [tfwd, t12]).slice(-1)[0];
+        let fsw = 1 / ss.reduce((x, y) => x.dt + y.dt);
+        return fsw - fswmax;
+      };
+      let t12 = nsolve(maximumFrequencyEquation, t12min, 1 / fswmax, brent);
+      [dv, ss] = simulate(v0, ckt, [tfwd, t12]);
+    }
+    return [dv, ss];
+  };
+
+  const v0max = ckt.vbus;
+  const v0min = (-ckt.vout / ckt.lm) * (ckt.lr + ckt.lm);
+  let v0 = nsolve(
+    (v) => voltageContinuityEquation(v)[0],
+    v0min * 0.99 + v0max * 0.01,
+    v0max * 0.99 + v0min * 0.01,
+    brent
+  );
+  let residue;
+  let ss;
+  [residue, ss] = voltageContinuityEquation(v0);
+
+  if (Math.abs(residue) > CONTROL.MINIMUM_VOLTAGE) {
+    console.log(`Warning: cannot find steady-state for tfwd = ${fmt(tfwd)}s (residue = ${fmt(residue)}).`);
+  }
+  return ss;
 }

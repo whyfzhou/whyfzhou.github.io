@@ -54,25 +54,30 @@ function drawSingleOP(data) {
     let vrData = t.map((e, k) => ({ x: e / 1e-6, y: vr[k] }));
     let vhbData = t.map((e, k) => ({ x: e / 1e-6, y: vhb[k] }));
 
-    svg
+    let tAxisLayer = svg.append("g");
+    let iAxisLayer = svg.append("g");
+    let vAxisLayer = svg.append("g");
+    let waveformLayer = svg.append("g");
+
+    waveformLayer
       .append("path")
       .classed("data", true)
       .attr("d", currentLine(irData))
       .style("fill", "none")
       .style("stroke", "blue");
-    svg
+    waveformLayer
       .append("path")
       .classed("data", true)
       .attr("d", currentLine(imData))
       .style("fill", "none")
       .style("stroke", "red");
-    svg
+    waveformLayer
       .append("path")
       .classed("data", true)
       .attr("d", voltageLine(vrData))
       .style("fill", "none")
       .style("stroke", "orange");
-    svg
+    waveformLayer
       .append("path")
       .classed("data", true)
       .attr("d", voltageLine(vhbData))
@@ -91,8 +96,7 @@ function drawSingleOP(data) {
     let tAxis = d3.axisBottom(tScale);
     let iAxis = d3.axisLeft(iScale);
     let vAxis = d3.axisRight(vScale);
-    svg
-      .append("g")
+    tAxisLayer
       .attr("class", "t-axis")
       .attr("transform", `translate(0, ${height - padding})`)
       .call(tAxis);
@@ -102,15 +106,14 @@ function drawSingleOP(data) {
       .classed("grid-line", true)
       .attr("y2", -(height - 2 * padding))
       .attr("stroke", "#dddddd");
-    svg.append("g").attr("class", "i-axis").attr("transform", `translate(${padding})`).call(iAxis);
+    iAxisLayer.attr("class", "i-axis").attr("transform", `translate(${padding})`).call(iAxis);
     svg
       .selectAll("g.i-axis g.tick")
       .append("line")
       .classed("grid-line", true)
       .attr("x2", width - 2 * padding)
       .attr("stroke", "#dddddd");
-    svg
-      .append("g")
+    vAxisLayer
       .attr("class", "v-axis")
       .attr("transform", `translate(${width - padding})`)
       .call(vAxis);
