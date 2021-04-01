@@ -614,6 +614,9 @@ function evaluateSwitchingPeriod(states) {
   return {
     operation: operation,
     tsw: tsw,
+    fsw: 1 / tsw,
+    dutyHS: tHsOn / tsw,
+    dutyDiode: tDiodeOn / tLsOn,
     irms: irms,
     irmsOut: irmsOut,
     imax: imax,
