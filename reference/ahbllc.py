@@ -594,7 +594,7 @@ def evaluate_switching_period(states):
             i2acc_out += j**2 / (4 * state.w) * (math.sin(2 * phi1) - math.sin(2 * state.phi))
             i2acc_out -= 2 * j * im0 / state.w * (math.sin(phi1) - math.sin(state.phi))
             i2acc_out -= 2 * j * km / state.w**2 * (math.cos(phi1) - math.cos(state.phi) + state.w * state.dt * math.sin(phi1))
-            i2acc_out += im0**2 * state.dt + km * state.dt**2 + km**2 * state.dt**3 / 3
+            i2acc_out += im0**2 * state.dt + im0 * km * state.dt**2 + km**2 * state.dt**3 / 3
             th0 = math.pi - math.asin(-km / (j * state.w))  # iout max's out at math.pi - theta, where theta is a small angle
             if state.phi <= th0 <= phi1:
                 if im0 + km * (th0 - state.phi) / state.w - j * math.cos(th0) > imax_out:
