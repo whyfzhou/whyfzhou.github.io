@@ -467,9 +467,7 @@ function simulate(v0, ckt, con) {
 
   let lsOn;
   lsOn = simulatePhase(lsOnIsf, isActive, hsOffLast.i1, hsOffLast.v1, hsOffLast.vhb1, hsOffLast.im1, ckt, t12min).slice(
-
     -1
-
   )[0];
   let lsOnLast = lsOn.slice(-1)[0];
   if (maximumDv(lsOnLast.i1, lsOnLast.v1) < (1 + ckt.chb / ckt.cr) * ckt.vbus) {
