@@ -194,4 +194,3 @@ function nsolve(eq, x0, x1, solver) {
 
   return solver(eq, x0, y0, x1, y1, xtol, ytol, maxIter);
 }
-
