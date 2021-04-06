@@ -56,14 +56,13 @@ def test_case_04():
 
 def test_case_05():
     ckt = ahbllc.AHBLLCTrafo(lr=30e-6, lm=900e-6, cr=47e-9, nps=2, vbus=410, vload=150, chb=600e-12)
-    ahbllcapp.evaluate_operating_point_with_tolerance(pout=150, ckt=ckt)  # TODO: 20V/20W 死循环
+    ahbllcapp.evaluate_operating_point_with_tolerance(pout=150, ckt=ckt)
 
 
 def test_case_06():
-    ckt = ahbllc.AHBLLC(lr=30e-6, lm=1000e-6, cr=47e-9, chb=500e-12, vbus=410, vout=200)
-    states = ahbllc.sim(200, ckt, (2e-6, 500e-9))[-1]
-    perf = ahbllc.evaluate_switching_period(states)
-    print(perf)
+    ckt = ahbllc.AHBLLC(lr=30e-6, lm=1000e-6, cr=47e-9, chb=200e-12, vbus=410, vout=80)
+    tf, ss, ev, pmax = ahbllc.evaluate_operating_point(pout=1, ckt=ckt)
+    print(ev)
 
 
 if __name__ == '__main__':

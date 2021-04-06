@@ -653,7 +653,8 @@ def find_steady_state(tfwd, ckt, t12min=500e-9, fswmax=100e3):
             dv, ss = sim(v0, ckt, (tfwd, t12))
         return dv, ss
 
-    v0max = ckt.vbus - 1
+    eq(75.16256356353576)  # FIXME: delete
+    v0max = ckt.vbus
     v0min = -ckt.vout / ckt.lm * (ckt.lr + ckt.lm)
     v0 = nsolve(lambda v: eq(v)[0], v0min * .99 + v0max * .01, v0max * .99 + v0min * .01)
     residue, ss = eq(v0)
@@ -670,6 +671,7 @@ def evaluate_operating_point(pout, ckt, t12min=500e-9, fswmax=100e3):
     sspmax = find_steady_state(tfwdmax, ckt, t12min, fswmax)
     pmax = evaluate_switching_period(sspmax).iout * ckt.vout
     if 0 < pout <= pmax:
+        evaluate_switching_period(find_steady_state(MINIMUM_FORWARD_TIME, ckt, t12min, fswmax))  # FIXME: debug only
         tf = nsolve(lambda t: evaluate_switching_period(find_steady_state(t, ckt, t12min, fswmax)).iout * ckt.vout - pout,
                     MINIMUM_FORWARD_TIME, tfwdmax)
         ss = find_steady_state(tf, ckt, t12min, fswmax)
