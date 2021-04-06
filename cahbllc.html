@@ -167,8 +167,8 @@
           <th class="table-header-parameter" data-tooltip="Resonant inductance $L_{\rm r}$, in micro henries.">
             L<sub>r</sub>
           </th>
-          <th class="table-header-parameter" data-tooltip="Magnetizing inductance $L_{\rm m}$, in micro henries.">
-            L<sub>m</sub>
+          <th class="table-header-parameter" data-tooltip="Primary winding inductance $L_{\rm pri}$, in micro henries. Please note that the magnetizing inductance $L_{\rm m} = L_{\rm pri} - L_{\rm r}$.">
+            L<sub>pri</sub>
           </th>
           <th class="table-header-parameter" data-tooltip="Resonant capacitance $C_{\rm r}$, in nano farads.">
             C<sub>r</sub>
@@ -178,13 +178,11 @@
           </th>
           <th
             class="table-header-parameter"
-            data-tooltip="Time delay between turning off of the diode and the low-side MOS,
-            $T_{12} \equiv t_2 - t_1$,
-            where $t_1$ is the moment when the output diode turns off,
-            while $t_2$ is the moment when the low-side MOS turns off,
-            in nano seconds."
+            data-tooltip="Effective capacitance at the half-bridge center $C_{\rm hb}$,
+            consisting of the effective (linearized) MOSFET output capacitance and
+            any external capacitance being added for EMI, in pico farad."
           >
-            T<sub>12</sub>
+            C<sub>hb</sub>
           </th>
           <th class="table-header-operatingpoint" data-tooltip="DC bus voltage $V_{\rm bus}$, in volts.">
             V<sub>bus</sub>
@@ -255,13 +253,12 @@
           </th>
           <th
             class="table-header-performance"
-            data-tooltip="Electric charge for commutating from low to high:
-            $\displaystyle Q_{\rm lh} \equiv \int_{t_2}^{t_{x+}} i(t) \,dt$,
-            where $t_2$ is the moment when the low-side MOS switches off,
-            and $t_{x+}$ is the moment when the resonant current crosses 0.
-            Result is in nano coulumbs."
+            data-tooltip="Actual delay time $T_{12}$ between turning turning-off of the output diode
+            and the turning-on of the low-side device, in nano seconds. The control adaptively sets $T_{12}$
+            to 1) avoid low-side device hard-switching, and 2) limit switching frequency to $f_{\rm sw,max}$.
+            The actual $T_{12}$ should be greater than $T_{12,\rm min}$ set in design input."
           >
-            Q<sub>lh</sub>
+            T<sub>12</sub>
           </th>
         </tr>
         <tbody id="result-table-rows"></tbody>

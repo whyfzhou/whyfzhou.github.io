@@ -539,6 +539,8 @@ function evaluateSwitchingPeriod(states) {
   let vacc = 0;
   let v2acc = 0;
 
+  let vl2acc = 0;
+
   let tDiodeOn = 0;
   let tHsOff = 0;
   let tLsOn = 0;
@@ -587,6 +589,7 @@ function evaluateSwitchingPeriod(states) {
         }
       }
     }
+
     if (state.state[0] === "c") {
       if (state.vhb0 > state.vhb1) {
         tHsOff += state.dt;
@@ -601,6 +604,18 @@ function evaluateSwitchingPeriod(states) {
     if (state.phi <= 0 && 0 <= state.w * state.dt + state.phi) {
       imax = j;
     }
+
+    let ml, bl;
+    if (state.state[0] === "c" || state.state[0] === 'l') {
+      ml = -state.r;
+      bl = state.state.slice(-1)[0] === "1" ? -state.vout : 0;
+    } else {
+      ml = -state.r;
+      bl = 0;
+    }
+    vl2acc += (ml ** 2 / 2 + bl ** 2) * state.dt;
+    vl2acc -= (ml ** 2 / (4 * state.w)) * (sin(2 * state.w * state.dt + 2 * state.phi) - sin(2 * state.phi));
+    vl2acc += ((2 * ml * bl) / state.w) * (cos(state.phi) - cos(state.w * state.dt + state.phi));
   }
 
   const irms = (i2acc / tsw) ** 0.5;
@@ -608,6 +623,7 @@ function evaluateSwitchingPeriod(states) {
   const vavg = vacc / tsw;
   const vrms = (v2acc / tsw) ** 0.5;
   const iout = qout / tsw;
+  const vlrms = (vl2acc / tsw) ** 0.5;
 
   t12 = states.filter((s) => s.state === "l0").slice(-1)[0].dt;
 
@@ -623,6 +639,7 @@ function evaluateSwitchingPeriod(states) {
     imaxOut: imaxOut,
     vavg: vavg,
     vrms: vrms,
+    vlrms: vlrms,
     iout: iout,
     tDiodeOn: tDiodeOn,
     tHsOff: tHsOff,

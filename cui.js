@@ -135,28 +135,16 @@ function findSteadyState(n) {
   let ckt = { lr: lr, lm: lm, cr: cr, chb: chb, vbus: vbus, vout: vout };
   let tfwd, steadyState, evaluation, pmax;
   [tfwd, steadyState, evaluation, pmax] = evaluateOperatingPoint(pload, ckt, t12min, fswmax);
-  let sampledData = sample(steadyState, 20000);
-  let measurement = evaluateSampled(steadyState, sampledData);
-  // console.log(measurement);
-  fillTable(measurement, opIndex);
-  drawSingleOP(sampledData);
-
-  if (false) {
-    let sampledData;
-    let measurement;
-    try {
-      let steadyState = steady_state_pout(pload, lr, lm, cr, vbus, vout, t12min);
-      sampledData = sample(steadyState, 2000);
-      measurement = evaluateSampled(steadyState, sampledData);
-    } catch (e) {
-      let pmax = e.value;
-      sampledData = pmax;
-      measurement = pmax;
-    } finally {
-      fillTable(measurement, opIndex);
-      drawSingleOP(sampledData);
-    }
+  let sampledData;
+  if (tfwd > 0) {
+    sampledData = sample(steadyState, 20000);
+    evaluation.psipri = evaluation.imax * (ckt.lr + ckt.lm);
+  } else {
+    sampledData = pmax;
+    evaluation = pmax;
   }
+  fillTable(evaluation, opIndex);
+  drawSingleOP(sampledData);
 }
 
 // ----------------------------------------------------------------------------
@@ -199,22 +187,22 @@ function fillTable(measurement, n) {
       document.querySelector("#lpri").valueAsNumber,
       document.querySelector("#cr").valueAsNumber,
       document.querySelector("#nps").valueAsNumber,
-      document.querySelector("#t12min").valueAsNumber,
+      document.querySelector("#chb").valueAsNumber,
       document.querySelector(`#vbus${opIndex}`).valueAsNumber,
       document.querySelector(`#vload${opIndex}`).valueAsNumber,
       document.querySelector(`#iload${opIndex}`).valueAsNumber,
       document.querySelector(`#pload${opIndex}`).valueAsNumber,
       measurement.fsw / 1e3,
-      measurement.dutyHighSide * 100,
+      measurement.dutyHS * 100,
       measurement.dutyDiode * 100,
-      measurement.iRMSPri,
-      measurement.vMeanRes,
-      measurement.vACRMSRes,
-      measurement.vRMSPri,
-      measurement.iRMSOut * nps,
-      measurement.iPPeakOut * nps,
-      measurement.psiPri / 1e-3,
-      measurement.qLowHigh / 1e-9,
+      measurement.irms,
+      measurement.vavg,
+      (measurement.vrms ** 2 - measurement.vavg ** 2) ** 0.5,
+      measurement.vlrms,
+      measurement.irmsOut * nps,
+      measurement.imaxOut * nps,
+      measurement.psipri / 1e-3,
+      measurement.t12 / 1e-9,
     ];
   } else {
     row = [
@@ -223,7 +211,7 @@ function fillTable(measurement, n) {
       document.querySelector("#lm").valueAsNumber,
       document.querySelector("#cr").valueAsNumber,
       document.querySelector("#nps").valueAsNumber,
-      document.querySelector("#t12").valueAsNumber,
+      document.querySelector("#chb").valueAsNumber,
       document.querySelector(`#vbus${opIndex}`).valueAsNumber,
       document.querySelector(`#vload${opIndex}`).valueAsNumber,
       document.querySelector(`#iload${opIndex}`).valueAsNumber,
