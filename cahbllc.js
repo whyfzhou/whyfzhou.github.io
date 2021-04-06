@@ -387,7 +387,7 @@ function simulatePhase(isf, cond, i0, v0, vhb0, im0, ckt, con) {
         t12history.push(s.dt);
       } else {
         if (s.dt < CONTROL.MINIMUM_DETECTABLE_DIODE_ON_TIME) {
-          con = t12given - t12history.reduce((x, y) => x + y, 0);
+          con = t12given - t12history.reduce((acc, tt) => acc + tt, 0);
         } else {
           t12history = [];
           con = t12given;
@@ -548,7 +548,7 @@ function evaluateSwitchingPeriod(states) {
   const sin = Math.sin;
   const cos = Math.cos;
 
-  for (state of states) {
+  for (let state of states) {
     tsw += state.dt;
     let j = state.r / state.z;
     i2acc += (j ** 2 * state.dt) / 2;
@@ -633,16 +633,16 @@ function evaluateSwitchingPeriod(states) {
   };
 }
 
-function findSteadyState(tfwd, ckt, t12min, fswmax) {
+function solveSteadyState(tfwd, ckt, t12min, fswmax) {
   const voltageContinuityEquation = (v0) => {
     let dv;
     let ss;
     [dv, ss] = simulate(v0, ckt, [tfwd, t12min]);
-    let fsw = 1 / ss.reduce((x, y) => x.dt + y.dt, 0);
+    let fsw = 1 / ss.reduce((acc, s) => acc + s.dt, 0);
     if (fsw > fswmax) {
       const maximumFrequencyEquation = (t12) => {
         let ss = simulate(v0, ckt, [tfwd, t12]).slice(-1)[0];
-        let fsw = 1 / ss.reduce((x, y) => x.dt + y.dt, 0);
+        let fsw = 1 / ss.reduce((acc, s) => acc + s.dt, 0);
         return fsw - fswmax;
       };
       let t12 = nsolve(maximumFrequencyEquation, t12min, 1 / fswmax, brent);
@@ -672,16 +672,16 @@ function findSteadyState(tfwd, ckt, t12min, fswmax) {
 function evaluateOperatingPoint(pout, ckt, t12min, fswmax) {
   let vdion = (ckt.vout / ckt.lm) * (ckt.lr + ckt.lm);
   let tfwdmax = (Math.PI / 2 + Math.asin(vdion / (ckt.vbus + vdion))) / ((ckt.lr + ckt.lm) * ckt.cr) ** -0.5;
-  let sspmax = findSteadyState(tfwdmax, ckt, t12min, fswmax);
+  let sspmax = solveSteadyState(tfwdmax, ckt, t12min, fswmax);
   let pmax = evaluateSwitchingPeriod(sspmax).iout * ckt.vout;
   if (0 < pout && pout <= pmax) {
     let tf = nsolve(
-      (t) => evaluateSwitchingPeriod(findSteadyState(t, ckt, t12min, fswmax)).iout * ckt.vout - pout,
+      (t) => evaluateSwitchingPeriod(solveSteadyState(t, ckt, t12min, fswmax)).iout * ckt.vout - pout,
       CONTROL.MINIMUM_FORWARD_TIME,
       tfwdmax,
-      brent
+      ridder
     );
-    let ss = findSteadyState(tf, ckt, t12min, fswmax);
+    let ss = solveSteadyState(tf, ckt, t12min, fswmax);
     return [tf, ss, evaluateSwitchingPeriod(ss), pmax];
   } else {
     return [0, [{}], {}, pmax];
