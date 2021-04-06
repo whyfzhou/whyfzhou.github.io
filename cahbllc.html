@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./button.css" />
+    <!-- <link
+      rel="stylesheet"
+      href="https://cdn.bootcdn.net/ajax/libs/material-components-web/7.0.0-canary.ff4bc632a.0/material-components-web.min.css"
+    /> -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        extensions: ["tex2jax.js"],
+        jax: ["input/TeX", "output/HTML-CSS"],
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+          displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+          processEscapes: true
+        },
+        "HTML-CSS": {
+          availableFonts: ["Asana Math"],
+          preferredFont:"Asana Math"
+        }
+      });
+    </script>
+    <script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js"></script>
+    <script src="./3rdparty/d3.js"></script>
+    <script src="./utils.js"></script>
+    <script src="./plot.js"></script>
+    <script src="./postprocess.js"></script>
+    <script src="./cahbllc.js"></script>
+    <script src="./cui.js"></script>
+    <title>AHBLLC Designer - Evaluate Single OP</title>
+  </head>
+  <body>
+    <div class="container">
+      <!---------------------------------------------------------------------->
+      <h1>Design Input</h1>
+      <!---------------------------------------------------------------------->
+      <div class="design-entry">
+        <label for="lr" class="prompt">Resonant/Leakage inductance</label>
+        <input type="number" class="number" name="lr" id="lr" placeholder="Lr" value="30" min="10" />
+        <label for="lr" class="unit">μH</label>
+        <label for="lpri" class="prompt">Primary inductance</label>
+        <input type="number" class="number" name="lpri" id="lpri" placeholder="Lpri" value="1000" step="10" min="100" />
+        <label for="lpri" class="unit">μH</label>
+        <label for="cr" class="prompt">Resonant capacitance</label>
+        <input type="number" class="number" name="cr" id="cr" placeholder="Cr" value="47" min="1" />
+        <label for="cr" class="unit">nF</label>
+        <label for="nps" class="prompt">Effective turns ratio (Pri : Sec)</label>
+        <input type="number" class="number" name="nps" id="nps" placeholder="nps" value="4" step="0.1" min="0.1" />
+        <label for="nps" class="unit"></label>
+        <label for="chb" class="prompt">Half-bridge capacitance</label>
+        <input type="number" class="number" name="chb" id="chb" placeholder="Chb" value="200" step="10" min="10" />
+        <label for="chb" class="unit">pF</label>
+        <label for="t12min" class="prompt">Minimum delay after didoe off</label>
+        <input type="number" class="number" name="t12min" id="t12min" placeholder="t12min" value="500" step="100" min="100" />
+        <label for="t12min" class="unit">ns</label>
+        <label for="fswmax" class="prompt">Maximum switching frequency</label>
+        <input type="number" class="number" name="fswmax" id="fswmax" placeholder="fswmax" value="100" step="1" min="50" />
+        <label for="fswmax" class="unit">kHz</label>
+      </div>
+
+      <!---------------------------------------------------------------------->
+      <h1>Operating Points</h1>
+      <!---------------------------------------------------------------------->
+      <div id="operating-points-container">
+        <div class="op">
+          <div class="design-entry">
+            <button type="button" class="btn operating-point-0" id="action-addremoveop">
+              <span>+</span>
+            </button>
+            <label for="vbus" class="prompt">DC bus voltage</label>
+            <input
+              type="number"
+              class="number operating-point-0"
+              name="vbus"
+              id="vbus"
+              placeholder="Vbus"
+              value="410"
+              min="380"
+            />
+            <label for="vbus" class="unit operating-point-0">V</label>
+            <label for="vload" class="prompt">Load voltage</label>
+            <input
+              type="number"
+              class="number operating-point-0"
+              name="vload"
+              id="vload"
+              placeholder="Vload"
+              value="40"
+              min="1"
+            />
+            <label for="vload" class="unit operating-point-0">V</label>
+            <label for="iload" class="prompt">Load current</label>
+            <input
+              type="number"
+              class="number operating-point-0"
+              name="iload"
+              id="iload"
+              placeholder="Iload"
+              value="1"
+              step="0.1"
+              min="0"
+              max="10"
+            />
+            <label for="iload" class="unit operating-point-0">A</label>
+            <label for="pload" class="prompt">Load power</label>
+            <input
+              type="number"
+              class="number operating-point-0"
+              name="pload"
+              id="pload"
+              placeholder="Pload"
+              value="40"
+            />
+            <label for="pload" class="unit operating-point-0">W</label>
+          </div>
+        </div>
+      </div>
+      <template id="operating-point-template">
+        <div class="op">
+          <div class="design-entry-no-prompt">
+            <button type="button" class="btn" id="action-addremoveop">
+              <span>-</span>
+            </button>
+            <input type="number" class="number decol1" name="vbus" id="vbus" placeholder="Vbus" value="410" min="380" />
+            <label for="vbus" class="unit">V</label>
+            <input type="number" class="number" name="vload" id="vload" placeholder="Vload" value="40" min="1" />
+            <label for="vload" class="unit">V</label>
+            <input
+              type="number"
+              class="number"
+              name="iload"
+              id="iload"
+              placeholder="Iload"
+              value="1"
+              step="0.1"
+              min="0"
+              max="10"
+            />
+            <label for="iload" class="unit">A</label>
+            <input type="number" class="number" name="pload" id="pload" placeholder="Pload" value="40" />
+            <label for="pload" class="unit">W</label>
+          </div>
+        </div>
+      </template>
+
+      <h3></h3>
+      <button type="button" class="btn" id="action-findss">
+        <span>Evaluate the First</span>
+      </button>
+      <button type="button" class="btn" id="action-findssa">
+        <span>Evaluate All! </span>
+      </button>
+
+      <!---------------------------------------------------------------------->
+      <h1>Results</h1>
+      <!---------------------------------------------------------------------->
+      <p class="result result-explanation-default" id="result-explanation" style="display: none">
+        Click head titles for more information.
+      </p>
+      <table id="result-table">
+        <tr id="result-table-header" style="display: none">
+          <th data-tooltip="Serial number of evaluation.">#</th>
+          <th class="table-header-parameter" data-tooltip="Resonant inductance $L_{\rm r}$, in micro henries.">
+            L<sub>r</sub>
+          </th>
+          <th class="table-header-parameter" data-tooltip="Magnetizing inductance $L_{\rm m}$, in micro henries.">
+            L<sub>m</sub>
+          </th>
+          <th class="table-header-parameter" data-tooltip="Resonant capacitance $C_{\rm r}$, in nano farads.">
+            C<sub>r</sub>
+          </th>
+          <th class="table-header-parameter" data-tooltip="Effective turns ratio in cantilever model $n_{\rm ps}$.">
+            n<sub>ps</sub>
+          </th>
+          <th
+            class="table-header-parameter"
+            data-tooltip="Time delay between turning off of the diode and the low-side MOS,
+            $T_{12} \equiv t_2 - t_1$,
+            where $t_1$ is the moment when the output diode turns off,
+            while $t_2$ is the moment when the low-side MOS turns off,
+            in nano seconds."
+          >
+            T<sub>12</sub>
+          </th>
+          <th class="table-header-operatingpoint" data-tooltip="DC bus voltage $V_{\rm bus}$, in volts.">
+            V<sub>bus</sub>
+          </th>
+          <th class="table-header-operatingpoint" data-tooltip="Load (LED) voltage $V_{\rm load}$, in volts.">
+            V<sub>load</sub>
+          </th>
+          <th class="table-header-operatingpoint" data-tooltip="Load (LED) current $I_{\rm load}$ in amperes.">
+            I<sub>load</sub>
+          </th>
+          <th class="table-header-operatingpoint" data-tooltip="Load (LED) power $P_{\rm load}$ in watts.">
+            P<sub>load</sub>
+          </th>
+          <th
+            class="table-header-performance"
+            data-tooltip="Switching frequency $\displaystyle f_{\rm sw} = \frac {1} {T_{\rm sw}}$,
+            in kilo hertz."
+          >
+            f<sub>sw</sub>
+          </th>
+          <th
+            class="table-header-performance"
+            data-tooltip="Duty ratio of the high-side MOS:
+            $\delta_{\rm hs} \equiv T_{23} f_{\rm sw}$,
+            where $T_{23}$ is the time duration between $t_2$,
+            the moment when the low-side MOS turns off, and $t_3$,
+            the moment when the high-side MOS turns off,
+            in percentage."
+          >
+            δ<sub>hs</sub>
+          </th>
+          <th
+            class="table-header-performance"
+            data-tooltip="Duty ratio of the diode in the low-side MOS on phase:
+            $\displaystyle \delta_{\rm dio} \equiv \frac {T_{01}} {T_{01} + T_{12} + T_{30}} $,
+            where $T_{01} \equiv t_1 - t_0 = t_1$,
+            $T_{12} \equiv t_2 - t_1$, and
+            $T_{30} \equiv t_0 + T_{\rm sw} - t_3 = T_{\rm sw} - t_3$,
+            in percentage."
+          >
+            δ<sub>dio</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="RMS current in the primary winding, in amperes.">
+            I<sub>rms,pri</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="Average voltage on the resonant capacitor, in volts.">
+            V<sub>mean,res</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="RMS AC voltage on the resonant capacitor, in volts.">
+            V<sub>ac,res</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="RMS voltage on the primary winding, in volts.">
+            V<sub>rms,pri</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="RMS current in the output diode, in amperes.">
+            I<sub>rms,out</sub>
+          </th>
+          <th class="table-header-performance" data-tooltip="Peak current in the output diode, in amperes.">
+            I<sub>ppk,out</sub>
+          </th>
+          <th
+            class="table-header-performance"
+            data-tooltip="Magnetic flux linked to the primary winding:
+            $\displaystyle \Psi_{\rm pri} \equiv \frac{1}{4} \int_0^{T_{\rm sw}} |v_{\rm pri}(t)| \,dt = n_{\rm pri} A_{\rm e,min} B$,
+            in milli webbers."
+          >
+            Ψ<sub>pri</sub>
+          </th>
+          <th
+            class="table-header-performance"
+            data-tooltip="Electric charge for commutating from low to high:
+            $\displaystyle Q_{\rm lh} \equiv \int_{t_2}^{t_{x+}} i(t) \,dt$,
+            where $t_2$ is the moment when the low-side MOS switches off,
+            and $t_{x+}$ is the moment when the resonant current crosses 0.
+            Result is in nano coulumbs."
+          >
+            Q<sub>lh</sub>
+          </th>
+        </tr>
+        <tbody id="result-table-rows"></tbody>
+      </table>
+      <button type="button" class="btn result-action" id="result-inverse" style="display: none">
+        <span>Inverse Selection</span>
+      </button>
+      <button type="button" class="btn result-action" id="result-remove" style="display: none">
+        <span>Remove Selected</span>
+      </button>
+
+      <!---------------------------------------------------------------------->
+      <h1>Waveforms</h1>
+      <!---------------------------------------------------------------------->
+      <div class="waveform" id="chart"></div>
+    </div>
+  </body>
+</html>
