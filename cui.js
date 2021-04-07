@@ -361,15 +361,17 @@ function refreshTable() {
   for (let row = 0; row < table.rows.length; ++row) {
     let resultId = parseInt(table.rows[row].cells[0].innerText);
     let caption = document.querySelector(`#fig${resultId} p`);
-    if (window.app.selectedRows.indexOf(row) === -1) {
-      for (let col = 0; col < table.rows[row].cells.length; ++col) {
-        table.rows[row].cells[col].classList.remove("result-selected");
-        caption.classList.remove("result-selected");
-      }
-    } else {
-      for (let col = 0; col < table.rows[row].cells.length; ++col) {
-        table.rows[row].cells[col].classList.add("result-selected");
-        caption.classList.add("result-selected");
+    if (caption) {
+      if (window.app.selectedRows.indexOf(row) === -1) {
+        for (let col = 0; col < table.rows[row].cells.length; ++col) {
+          table.rows[row].cells[col].classList.remove("result-selected");
+          caption.classList.remove("result-selected");
+        }
+      } else {
+        for (let col = 0; col < table.rows[row].cells.length; ++col) {
+          table.rows[row].cells[col].classList.add("result-selected");
+          caption.classList.add("result-selected");
+        }
       }
     }
   }
@@ -380,7 +382,7 @@ function tableClicked(e) {
     let selected = this.rowIndex - 1;
     let j = window.app.selectedRows.indexOf(selected);
     if (j === -1) {
-      window.app.selectedRows[window.app.selectedRows.length] = selected;
+      window.app.selectedRows.push(selected);
     } else {
       window.app.selectedRows.splice(j, 1);
     }
