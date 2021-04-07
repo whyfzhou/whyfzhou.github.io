@@ -112,7 +112,7 @@ function findSteadyStateAll() {
 
 function findSteadyState(n) {
   const dinput = getDesignInput(n);
-  const opIndex = dinput.opIndex;
+  // const opIndex = dinput.opIndex;
   const lr = dinput.lr;
   const lpri = dinput.lpri;
   const lm = dinput.lm;
@@ -145,9 +145,10 @@ function findSteadyState(n) {
     sampledData = pmax;
     evaluation = pmax;
   }
+  let di = { lr: lr / 1e-6, cr: cr / 1e-9, lpri: lpri / 1e-6, nps: nps, chb: chb / 1e-12 };
   let op = { vbus: vbus, vload: vload, iload: pload / vload, pload: pload };
   let fignum = window.app.resultIndices.slice(-1)[0];
-  fillTable(evaluation, dinput, op, fignum);
+  fillTable(evaluation, di, op, fignum);
   drawSingleOP(sampledData);
 }
 
