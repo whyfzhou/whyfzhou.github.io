@@ -12,6 +12,7 @@ function init() {
   // bind events
   document.querySelector("#action-findss").onclick = findSteadyState0;
   document.querySelector("#action-findssa").onclick = findSteadyStateAll;
+  document.querySelector("#action-doe").onclick = doDoE;
   document.querySelector("#vload").onchange = vloadChanged;
   document.querySelector("#iload").onchange = iloadChanged;
   document.querySelector("#pload").onchange = ploadChanged;
@@ -110,19 +111,20 @@ function findSteadyStateAll() {
 }
 
 function findSteadyState(n) {
-  let opIndex = !n || n === 0 ? "" : n;
-  let lr = document.querySelector("#lr").valueAsNumber * 1e-6;
-  let lpri = document.querySelector("#lpri").valueAsNumber * 1e-6;
-  let lm = lpri - lr;
-  let cr = document.querySelector("#cr").valueAsNumber * 1e-9;
-  let nps = document.querySelector("#nps").valueAsNumber;
-  let chb = document.querySelector("#chb").valueAsNumber * 1e-12;
-  let t12min = document.querySelector("#t12min").valueAsNumber * 1e-9;
-  let fswmax = document.querySelector("#fswmax").valueAsNumber * 1e3;
-  let vbus = document.querySelector(`#vbus${opIndex}`).valueAsNumber;
-  let vload = document.querySelector(`#vload${opIndex}`).valueAsNumber;
-  let pload = document.querySelector(`#pload${opIndex}`).valueAsNumber;
-  let vout = vload * nps;
+  const dinput = getDesignInput(n);
+  const opIndex = dinput.opIndex;
+  const lr = dinput.lr;
+  const lpri = dinput.lpri;
+  const lm = dinput.lm;
+  const cr = dinput.cr;
+  const nps = dinput.nps;
+  const chb = dinput.chb;
+  const t12min = dinput.t12min;
+  const fswmax = dinput.fswmax;
+  const vbus = dinput.vbus;
+  const vload = dinput.vload;
+  const pload = dinput.pload;
+  const vout = dinput.vout;
 
   let currentResultId;
   if (window.app.resultIndices.length === 0) {
@@ -143,8 +145,103 @@ function findSteadyState(n) {
     sampledData = pmax;
     evaluation = pmax;
   }
-  fillTable(evaluation, opIndex);
+  let op = { vbus: vbus, vload: vload, iload: pload / vload, pload: pload };
+  let fignum = window.app.resultIndices.slice(-1)[0];
+  fillTable(evaluation, dinput, op, fignum);
   drawSingleOP(sampledData);
+}
+
+function doDoE() {
+  const dinput = getDesignInput(0);
+  const lr = dinput.lr;
+  const lpri = dinput.lpri;
+  const cr = dinput.cr;
+  const nps = dinput.nps;
+  const chb = dinput.chb;
+  const t12min = dinput.t12min;
+  const fswmax = dinput.fswmax;
+  const vbus = dinput.vbus;
+  const vload = dinput.vload;
+  const pload = dinput.pload;
+
+  const generateLevels = (v, t) => [v * (1 - t), v * (1 + t)];
+  const lrLevels = generateLevels(lr, dinput.lrTol);
+  const crLevels = generateLevels(cr, dinput.crTol);
+  const lpriLevels = generateLevels(lpri, dinput.lpriTol);
+  const npsLevels = generateLevels(nps, dinput.npsTol);
+  const chbLevels = generateLevels(chb, dinput.chbTol);
+  const vbusLevels = generateLevels(vbus, dinput.vbusTol);
+
+  const cartesianProduct = (...a) => a.reduce((a, b) => a.flatMap((d) => b.map((e) => [d, e].flat())));
+  for (let [lr1, cr1, lpri1, nps1, chb1, vbus1] of cartesianProduct(
+    lrLevels,
+    crLevels,
+    lpriLevels,
+    npsLevels,
+    chbLevels,
+    vbusLevels
+  )) {
+    let lm1 = lpri1 - lr1;
+    let vout1 = vload * nps1;
+    let ckt = { lr: lr1, lm: lm1, cr: cr1, chb: chb1, vbus: vbus1, vout: vout1 };
+    let [tfwd, steadyState, evaluation, pmax] = evaluateOperatingPoint(pload, ckt, t12min, fswmax);
+    let sampledData;
+    if (tfwd > 0) {
+      sampledData = sample(steadyState, 20000);
+      evaluation.psipri = evaluation.imax * (ckt.lr + ckt.lm);
+    } else {
+      sampledData = pmax;
+      evaluation = pmax;
+    }
+    let di = { lr: lr1 / 1e-6, cr: cr1 / 1e-9, lpri: lpri1 / 1e-6, nps: nps1, chb: chb1 / 1e-12 };
+    let op = { vbus: vbus1, vload: vload, iload: pload / vload, pload: pload };
+    fillTable(evaluation, di, op, 0);
+  }
+}
+
+function getDesignInput(n) {
+  const opIndex = !n || n === 0 ? "" : n;
+  const lr = document.querySelector("#lr").valueAsNumber * 1e-6;
+  const lpri = document.querySelector("#lpri").valueAsNumber * 1e-6;
+  const lm = lpri - lr;
+  const cr = document.querySelector("#cr").valueAsNumber * 1e-9;
+  const nps = document.querySelector("#nps").valueAsNumber;
+  const chb = document.querySelector("#chb").valueAsNumber * 1e-12;
+  const t12min = document.querySelector("#t12min").valueAsNumber * 1e-9;
+  const fswmax = document.querySelector("#fswmax").valueAsNumber * 1e3;
+  const vbus = document.querySelector(`#vbus${opIndex}`).valueAsNumber;
+  const vload = document.querySelector(`#vload${opIndex}`).valueAsNumber;
+  const pload = document.querySelector(`#pload${opIndex}`).valueAsNumber;
+  const vout = vload * nps;
+
+  const lrTol = document.querySelector("#lrTol").valueAsNumber / 100;
+  const crTol = document.querySelector("#crTol").valueAsNumber / 100;
+  const lpriTol = document.querySelector("#lpriTol").valueAsNumber / 100;
+  const npsTol = document.querySelector("#npsTol").valueAsNumber / 100;
+  const chbTol = document.querySelector("#chbTol").valueAsNumber / 100;
+  const vbusTol = document.querySelector("#vbusTol").valueAsNumber / 100;
+
+  return {
+    opIndex: opIndex,
+    lr: lr,
+    lpri: lpri,
+    lm: lm,
+    cr: cr,
+    nps: nps,
+    chb: chb,
+    t12min: t12min,
+    fswmax: fswmax,
+    vbus: vbus,
+    vload: vload,
+    pload: pload,
+    vout: vout,
+    lrTol: lrTol,
+    crTol: crTol,
+    lpriTol: lpriTol,
+    npsTol: npsTol,
+    chbTol: chbTol,
+    vbusTol: vbusTol,
+  };
 }
 
 // ----------------------------------------------------------------------------
@@ -169,8 +266,7 @@ function showExplanation() {
 
 // ----------------------------------------------------------------------------
 
-function fillTable(measurement, n) {
-  let opIndex = !n || n === 0 ? "" : n;
+function fillTable(measurement, di, op, fignum) {
   for (let resultAction of document.querySelectorAll(".result-action")) {
     resultAction.setAttribute("style", "display: inline-block;");
   }
@@ -182,16 +278,16 @@ function fillTable(measurement, n) {
   let row;
   if (!(typeof measurement === "number")) {
     row = [
-      window.app.resultIndices.slice(-1)[0],
-      document.querySelector("#lr").valueAsNumber,
-      document.querySelector("#lpri").valueAsNumber,
-      document.querySelector("#cr").valueAsNumber,
-      document.querySelector("#nps").valueAsNumber,
-      document.querySelector("#chb").valueAsNumber,
-      document.querySelector(`#vbus${opIndex}`).valueAsNumber,
-      document.querySelector(`#vload${opIndex}`).valueAsNumber,
-      document.querySelector(`#iload${opIndex}`).valueAsNumber,
-      document.querySelector(`#pload${opIndex}`).valueAsNumber,
+      fignum,
+      di.lr,
+      di.lpri,
+      di.cr,
+      di.nps,
+      di.chb,
+      op.vbus,
+      op.vload,
+      op.iload,
+      op.pload,
       measurement.fsw / 1e3,
       measurement.dutyHS * 100,
       measurement.dutyDiode * 100,
@@ -206,16 +302,16 @@ function fillTable(measurement, n) {
     ];
   } else {
     row = [
-      window.app.resultIndices.slice(-1)[0],
-      document.querySelector("#lr").valueAsNumber,
-      document.querySelector("#lm").valueAsNumber,
-      document.querySelector("#cr").valueAsNumber,
-      document.querySelector("#nps").valueAsNumber,
-      document.querySelector("#chb").valueAsNumber,
-      document.querySelector(`#vbus${opIndex}`).valueAsNumber,
-      document.querySelector(`#vload${opIndex}`).valueAsNumber,
-      document.querySelector(`#iload${opIndex}`).valueAsNumber,
-      document.querySelector(`#pload${opIndex}`).valueAsNumber,
+      fignum,
+      di.lr,
+      di.lpri,
+      di.cr,
+      di.nps,
+      di.chb,
+      op.vbus,
+      op.vload,
+      op.iload,
+      op.pload,
     ];
   }
 
@@ -224,7 +320,7 @@ function fillTable(measurement, n) {
   let i = 0;
   for (let x of row) {
     let newCell = document.createElement("td");
-    if (i === 0) {
+    if (i === 0 && x > 0) {
       let a = document.createElement("a");
       a.href = `#fig${window.app.resultIndices.slice(-1)[0]}`;
       a.innerHTML = x.toLocaleString(undefined, {

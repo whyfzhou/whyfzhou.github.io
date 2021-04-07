@@ -37,7 +37,7 @@ div.design-entry {
 
 div.design-entry-multiple-columns {
   display: grid;
-  grid-template-columns: 15em repeat(3, 2em 5em 2em);
+  grid-template-columns: 15em repeat(3, 4em 5em 2em);
   grid-gap: 3px;
   /* grid-auto-rows: minmax(100px, auto); */
   /* width: 30%; */
@@ -59,6 +59,14 @@ div.design-entry-no-prompt {
   grid-column: 1;
 }
 
+label.symbol {
+  text-align: right;
+}
+.disabled {
+  text-align: center;
+  font-style: italic;
+  color: #888;
+}
 label.prompt {
   grid-column: 1;
 }

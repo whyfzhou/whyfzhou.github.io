@@ -38,28 +38,64 @@
       <!---------------------------------------------------------------------->
       <h1>Design Input</h1>
       <!---------------------------------------------------------------------->
-      <div class="design-entry">
+      <div class="design-entry-multiple-columns">
         <label for="lr" class="prompt">Resonant/Leakage inductance</label>
+        <label for="lr" class="symbol">L<sub>r</sub> = </label>
         <input type="number" class="number" name="lr" id="lr" placeholder="Lr" value="30" min="10" />
         <label for="lr" class="unit">μH</label>
+        <label for="lrTol" class="symbol">±</label>
+        <input type="number" class="number" name="lrTol" id="lrTol" placeholder="Lr Tolerance" value="10" min="1" />
+        <label for="lrTol" class=unit>%</label>
+
         <label for="lpri" class="prompt">Primary inductance</label>
+        <label for="lpri" class="symbol">L<sub>pri</sub> = </label>
         <input type="number" class="number" name="lpri" id="lpri" placeholder="Lpri" value="1000" step="10" min="100" />
         <label for="lpri" class="unit">μH</label>
+        <label for="lpriTol" class="symbol">±</label>
+        <input type="number" class="number" name="lpriTol" id="lpriTol" placeholder="Lpri Tolerance" value="5" min="1" />
+        <label for="lpriTol" class=unit>%</label>
+
         <label for="cr" class="prompt">Resonant capacitance</label>
+        <label for="cr" class="symbol">C<sub>r</sub> = </label>
         <input type="number" class="number" name="cr" id="cr" placeholder="Cr" value="47" min="1" />
         <label for="cr" class="unit">nF</label>
+        <label for="crTol" class="symbol">±</label>
+        <input type="number" class="number" name="crTol" id="crTol" placeholder="Cr Tolerance" value="5" min="1" />
+        <label for="crTol" class=unit>%</label>
+
         <label for="nps" class="prompt">Effective turns ratio (Pri : Sec)</label>
+        <label for="nps" class="symbol">n<sub>ps</sub> = </label>
         <input type="number" class="number" name="nps" id="nps" placeholder="nps" value="4" step="0.1" min="0.1" />
         <label for="nps" class="unit"></label>
+        <label for="npsTol" class="symbol">±</label>
+        <input type="number" class="number" name="npsTol" id="npsTol" placeholder="nps Tolerance" value="3" min="1" />
+        <label for="npsTol" class=unit>%</label>
+
         <label for="chb" class="prompt">Half-bridge capacitance</label>
+        <label for="chb" class="symbol">C<sub>hb</sub> = </label>
         <input type="number" class="number" name="chb" id="chb" placeholder="Chb" value="200" step="10" min="10" />
         <label for="chb" class="unit">pF</label>
+        <label for="chbTol" class="symbol">±</label>
+        <input type="number" class="number" name="chbTol" id="chbTol" placeholder="Chb Tolerance" value="10" min="1" />
+        <label for="chbTol" class=unit>%</label>
+
         <label for="t12min" class="prompt">Minimum delay after didoe off</label>
+        <label for="t12min" class="symbol">T<sub>12,min</sub> = </label>
         <input type="number" class="number" name="t12min" id="t12min" placeholder="t12min" value="500" step="100" min="100" />
         <label for="t12min" class="unit">ns</label>
+
         <label for="fswmax" class="prompt">Maximum switching frequency</label>
+        <label for="fswmax" class="symbol">f<sub>sw,max</sub> = </label>
         <input type="number" class="number" name="fswmax" id="fswmax" placeholder="fswmax" value="100" step="1" min="50" />
         <label for="fswmax" class="unit">kHz</label>
+
+        <label for="vbus" class="prompt">DC bus voltage</label>
+        <label for="vbus" class="symbol">V<sub>bus</sub> = </label>
+        <label for="vbus" class="disabled">see below</label>
+        <label for="vbus" class="unit">V</label>
+        <label for="vbusTol" class="symbol">±</label>
+        <input type="number" class="number" name="vbusTol" id="vbusTol" placeholder="Vbus Tolerance" value="4" min="1" />
+        <label for="vbusTol" class=unit>%</label>
       </div>
 
       <!---------------------------------------------------------------------->
@@ -153,6 +189,9 @@
       </button>
       <button type="button" class="btn" id="action-findssa">
         <span>Evaluate All! </span>
+      </button>
+      <button type="button" class="btn" id="action-doe">
+        <span>DoE the First</span>
       </button>
 
       <!---------------------------------------------------------------------->
